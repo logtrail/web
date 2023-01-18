@@ -2,7 +2,7 @@
   "name": "web",
   "version": "0.0.1",
   "description": " ",
-  "productName": "Overlogs Web",
+  "productName": "LogTrail Web",
   "author": "Guilherme Toni <guilhermedelly8@gmail.com>",
   "private": true,
   "scripts": {
