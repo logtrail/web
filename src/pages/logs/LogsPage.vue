@@ -13,7 +13,7 @@
         <div class="col-12 text-center">
           <img src="img/empty-dash.svg" width="450" height="350" alt="">
           <p class="text-weight-bold">
-            Your don't have logs yet!
+            You don't have logs yet!
           </p>
         </div>
       </div>
