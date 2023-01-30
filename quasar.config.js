@@ -14,6 +14,8 @@
 const { configure } = require('quasar/wrappers');
 const path = require('path');
 
+const aliases = require('./aliases.js');
+
 module.exports = configure((/* ctx */) => ({
   eslint: {
     // fix: true,
@@ -43,7 +45,7 @@ module.exports = configure((/* ctx */) => ({
   // https://github.com/quasarframework/quasar/tree/dev/extras
   extras: [
     // 'ionicons-v4',
-    // 'mdi-v5',
+    'mdi-v5',
     // 'fontawesome-v6',
     // 'eva-icons',
     // 'themify',
@@ -89,6 +91,13 @@ module.exports = configure((/* ctx */) => ({
         include: path.resolve(__dirname, './src/i18n/**'),
       }],
     ],
+
+    extendWebpack(cfg) {
+      cfg.resolve.alias = {
+        ...cfg.resolve.alias,
+        ...aliases('.'),
+      };
+    },
   },
 
   // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
@@ -113,7 +122,7 @@ module.exports = configure((/* ctx */) => ({
     // directives: [],
 
     // Quasar plugins
-    plugins: [],
+    plugins: ['Dialog', 'Notify'],
   },
 
   // animations: 'all', // --- includes all animations
