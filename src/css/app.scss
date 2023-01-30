@@ -1,1 +1,17 @@
-// app global css in SCSS form
+@import './Inter.scss';
+
+body * {
+  font-family: 'Inter', sans-serif;
+}
+
+.q-page-container {
+  // background-color: #D9D9D9;
+
+  >.q-page {
+    width: min(1280px, 90%);
+    margin: 0 auto;
+    padding: 16px;
+  }
+}
+
+@import './components/_components';
