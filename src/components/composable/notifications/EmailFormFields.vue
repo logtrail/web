@@ -1,23 +1,14 @@
 <template>
   <div class="row full-width q-col-gutter-y-md">
     <div class="row col-12">
-      <q-input
-        v-model="notificationPageStore.newNotification.name"
-        v-bind="fieldDefaultProps"
-        class="col"
-        label="Notification name"
-        :rules="defaultRule" />
-    </div>
-
-    <div class="row col-12">
       <q-select
         v-model="notificationPageStore.newNotification.options.accountType"
-        v-bind="fieldDefaultProps"
+        v-bind="props.fieldProps"
         emit-value
         class="col"
         label="Email account"
         :options="accountTypes"
-        :rules="defaultRule"
+        :rules="props.rules"
         @update:model-value="changeAccountType" />
     </div>
 
@@ -25,21 +16,21 @@
       <div class="row col-12">
         <q-input
           v-model="notificationPageStore.newNotification.options.user"
-          v-bind="fieldDefaultProps"
+          v-bind="props.fieldProps"
           class="col"
           label="User"
           type="email"
-          :rules="defaultRule" />
+          :rules="props.rules" />
       </div>
 
       <div class="row col-12">
         <q-input
           v-model="notificationPageStore.newNotification.options.password"
-          v-bind="fieldDefaultProps"
+          v-bind="props.fieldProps"
           class="col"
           label="Password"
           type="password"
-          :rules="defaultRule" />
+          :rules="props.rules" />
       </div>
     </template>
 
@@ -47,12 +38,12 @@
       <div class="row col-12">
         <q-input
           v-model="notificationPageStore.newNotification.options.smtp"
-          v-bind="fieldDefaultProps"
+          v-bind="props.fieldProps"
           stack-label
           class="col"
           label="Server name"
           placeholder="smtp.domain.com"
-          :rules="defaultRule">
+          :rules="props.rules">
           <template v-slot:append>
             <q-checkbox
               v-model="notificationPageStore.newNotification.options.useTLS"
@@ -66,58 +57,57 @@
       <div class="row col-12">
         <q-input
           v-model="notificationPageStore.newNotification.options.port"
-          v-bind="fieldDefaultProps"
+          v-bind="props.fieldProps"
           stack-label
           class="col"
           label="Port"
           placeholder="587"
-          :rules="defaultRule" />
+          :rules="props.rules" />
       </div>
 
       <div class="row col-12">
         <q-input
           v-model="notificationPageStore.newNotification.options.user"
-          v-bind="fieldDefaultProps"
+          v-bind="props.fieldProps"
           class="col"
           label="User"
-          :rules="defaultRule"/>
+          :rules="props.rules"/>
       </div>
 
       <div class="row col-12">
         <q-input
           v-model="notificationPageStore.newNotification.options.password"
-          v-bind="fieldDefaultProps"
+          v-bind="props.fieldProps"
           class="col"
           label="Password"
           type="password"
-          :rules="defaultRule" />
+          :rules="props.rules" />
       </div>
     </template>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
 import useNotificationPageStore from 'src/stores/pages/notificationsPage';
 
 const notificationPageStore = useNotificationPageStore();
+
+const props = defineProps({
+  rules: {
+    type: Array,
+    default: () => [],
+  },
+
+  fieldProps: {
+    type: Object,
+    default: () => {},
+  },
+});
 
 const accountTypes = [
   { label: 'Google', value: 'google' },
   { label: 'Custom', value: 'custom' },
 ];
-
-const fieldDefaultProps = {
-  outlined: true,
-  dense: true,
-  'bg-color': 'white',
-  'no-error-icon': true,
-  'hide-bottom-space': true,
-};
-
-const defaultRule = computed(() => ([
-  (value) => !!value || 'Field is required',
-]));
 
 function changeTLSoption(value) {
   const port = value ? 465 : 587;

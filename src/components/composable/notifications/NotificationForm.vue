@@ -33,17 +33,27 @@
       <div class="row col-12 q-mb-md">
         <q-select
           v-model="notificationPageStore.newNotification.type"
-          dense
+          v-bind="fieldDefaultProps"
           emit-value
-          outlined
-          bg-color="white"
           class="col"
           label="Notification type"
           :disable="notificationPageStore.isEditingNotification"
           :options="notificationTypes" />
       </div>
 
-      <EmailFormFields v-if="currentSelection === 'email'" />
+      <div class="row col-12 q-mb-md">
+        <q-input
+          v-model="notificationPageStore.newNotification.name"
+          v-bind="fieldDefaultProps"
+          class="col"
+          label="Notification name"
+          :rules="defaultRule" />
+      </div>
+
+      <EmailFormFields
+        v-if="notificationPageStore.newNotification.type === 'email'"
+        :field-props="fieldDefaultProps"
+        :rules="defaultRule" />
 
       <q-separator class="full-width q-mt-lg" />
 
@@ -65,6 +75,7 @@ import {
   defineAsyncComponent,
   ref,
   computed,
+  onMounted,
 } from 'vue';
 import { useQuasar } from 'quasar';
 
@@ -83,6 +94,17 @@ const notificationTypes = [
   { label: 'Teams', value: 'teams' },
 ];
 
+const fieldDefaultProps = {
+  outlined: true,
+  dense: true,
+  'bg-color': 'white',
+  'no-error-icon': true,
+  'hide-bottom-space': true,
+};
+
+const currentSelection = ref('');
+const addNotificationForm = ref(null);
+
 const notificationTitle = computed(() => {
   const { addingNotification, editingNotification } = notificationPageStore;
 
@@ -92,10 +114,14 @@ const notificationTitle = computed(() => {
   return '';
 });
 
-const currentSelection = ref('');
-const addNotificationForm = ref(null);
+const defaultRule = computed(() => ([
+  (value) => !!value || 'Field is required',
+]));
 
-const notificationComponentFields = ref(null);
+onMounted(() => {
+  const { type: currentValueSelected } = notificationPageStore.newNotification;
+  currentSelection.value = currentValueSelected;
+});
 
 function closeNewNotification() {
   notificationPageStore.clearNewNotification();
@@ -150,7 +176,7 @@ async function saveNotification() {
   const { addingNotification, editingNotification } = notificationPageStore;
   const { value: addNotificationFormReference = {} } = addNotificationForm;
 
-  const result = await addNotificationFormReference?.validate().then((success: boolean) => success);
+  const result = await addNotificationFormReference?.validate().then((success) => success);
 
   if (!result) {
     $q.notify({
@@ -163,55 +189,6 @@ async function saveNotification() {
 
   if (addingNotification) await addNotification();
   if (editingNotification) await editNotification();
-}
-
-onMounted(() => {
-  const { type: currentValueSelected } = notificationPageStore.newNotification;
-  currentSelection.value = currentValueSelected;
-});
-
-const accountTypes = [
-  { label: 'Google', value: 'google' },
-  { label: 'Custom', value: 'custom' },
-];
-
-const fieldDefaultProps = {
-  outlined: true,
-  dense: true,
-  'bg-color': 'white',
-  'no-error-icon': true,
-  'hide-bottom-space': true,
-};
-
-const defaultRule = computed(() => ([
-  (value) => !!value || 'Field is required',
-]));
-
-function changeTLSoption(value) {
-  const port = value ? 465 : 587;
-
-  notificationPageStore.newNotification = {
-    ...notificationPageStore.newNotification,
-    options: {
-      ...notificationPageStore.newNotification.options,
-      port,
-    },
-  };
-}
-
-function changeAccountType(value) {
-  const accountTypes = {
-    google: () => {
-      delete notificationPageStore.newNotification.options.smtp;
-      delete notificationPageStore.newNotification.options.port;
-      delete notificationPageStore.newNotification.options.useTLS;
-    },
-    custom: () => {
-      notificationPageStore.newNotification.options.useTLS = false;
-    },
-  };
-
-  accountTypes[value]();
 }
 </script>
 
