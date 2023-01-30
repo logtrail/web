@@ -1,5 +1,7 @@
 <template>
-  <q-layout view="hHh Lpr lFf">
+  <q-layout
+    view="hHh LpR lFf"
+    :class="[notificationPageStore.isAddingNotification && 'adding-notification']">
     <q-header class="bg-dark q-px-md">
       <q-toolbar class="q-px-none">
         <q-btn
@@ -18,18 +20,6 @@
           </router-link>
         <q-space />
 
-        <!-- <div class="row col-6 q-my-md">
-          <q-input
-            v-model="search"
-            dense
-            outlined
-            bg-color="white"
-            class="col"
-            placeholder="Search" />
-        </div>
-
-        <q-space /> -->
-
         <div>
           <q-btn
             dense
@@ -44,7 +34,7 @@
     <q-drawer
       v-model="leftDrawerOpen"
       bordered
-      class="bg-grey-2 q-pt-md"
+      class="bg-grey-2 q-pt-md left-drawer"
       :mini="leftMiniDrawer"
       :width="250"
       @click="toggleLeftDrawer">
@@ -63,16 +53,6 @@
       </template>
 
       <q-list @click.stop="() => ''">
-        <!-- <q-item
-          v-ripple
-          class="q-mb-md">
-          <q-item-section class="content-start">
-            <img
-              alt=""
-              src="logo.png">
-          </q-item-section>
-        </q-item> -->
-
         <q-item
           v-for="menu in menus"
           v-ripple
@@ -95,29 +75,50 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-drawer
+      v-model="drawerRight"
+      overlay
+      elevated
+      class="bg-grey-2 q-pt-md right-drawer"
+      side="right"
+      :width="500">
+      <q-scroll-area class="fit">
+        <NotificationForm />
+      </q-scroll-area>
+    </q-drawer>
   </q-layout>
 </template>
 
 <script lang="ts">
 export default {
-  name: 'MainLayout',
+  name: 'NotificationLayout',
 };
 </script>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import {
+  ref,
+  computed,
+  // defineAsyncComponent,
+  onMounted,
+} from 'vue';
 import { useRoute } from 'vue-router';
+
+import useNotificationPageStore from 'src/stores/pages/notificationsPage';
+import NotificationForm from 'components/composable/notifications/NotificationForm.vue';
+
+const notificationPageStore = useNotificationPageStore();
 
 const leftDrawerOpen = ref(true);
 const leftMiniDrawer = ref(false);
-const search = ref('');
 
 const $route = useRoute();
 
 const menus = [
   {
     id: 'logs',
-    icon: 'view_day',
+    icon: 'dashboard',
     label: 'Logs',
     route: '/',
   },
@@ -129,7 +130,7 @@ const menus = [
   },
   {
     id: 'logtypes',
-    icon: 'storage', // 'data_object',
+    icon: 'data_object',
     label: 'Logtypes',
     route: '/logtypes',
   },
@@ -153,10 +154,32 @@ const currentRoute = computed(() => {
   return fullPath;
 });
 
+const drawerRight = computed(() => {
+  const { addingNotification, editingNotification } = notificationPageStore;
+
+  return addingNotification || editingNotification;
+});
+
 function toggleLeftDrawer() {
   // leftDrawerOpen.value = !leftDrawerOpen.value;
   leftMiniDrawer.value = !leftMiniDrawer.value;
 }
+
+onMounted(() => {
+
+  // const pageContainerRef = document.querySelector('.q-page-container');
+  // pageContainerRef?.addEventListener('click', ():void => {
+  //   console.log('click on page container');
+  //   // close right drawer and clear store
+  // });
+
+  // const drawerLeftRef = document.querySelector('.q-drawer--left');
+  // drawerLeftRef?.addEventListener('click', ():void => {
+  //   console.log('click on drawer left');
+  //   // close right drawer and clear store
+  // });
+});
+
 </script>
 
 <style lang="scss">
@@ -182,6 +205,14 @@ function toggleLeftDrawer() {
 
   & + & {
     margin-top: 18px;
+  }
+}
+
+.adding-notification {
+  .q-page,
+  .left-drawer {
+    filter: blur(5px);
+    pointer-events: none;
   }
 }
 </style>
