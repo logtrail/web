@@ -83,7 +83,7 @@
         <div class="row col-12 justify-center items-center category-no-data">
           <div class="col-12 text-center">
             <img src="img/empty-category.svg" width="250" height="250" alt="">
-            <p class="q-mt-md">
+            <p class="q-mt-md text-weight-bold">
               Wait! You don't have categories yet! Try to add new categories.
             </p>
             <q-btn

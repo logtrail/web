@@ -92,7 +92,7 @@
         <div class="row col-12 justify-center items-center notification-no-data">
           <div class="col-12 text-center">
             <img src="img/empty-notification.svg" width="250" height="250" alt="">
-            <p class="q-mt-md">
+            <p class="q-mt-md text-weight-bold">
               Wait! You don't have notifications accounts yet! Try to add new notification accounts.
             </p>
             <q-btn
