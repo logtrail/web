@@ -13,7 +13,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/logtypes',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('layouts/LogTypesLayout.vue'),
     children: [{ path: '', component: () => import('pages/logtypes/LogTypesPage.vue') }],
   },
   {
