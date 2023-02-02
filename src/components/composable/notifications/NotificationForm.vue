@@ -35,6 +35,7 @@
           v-model="notificationPageStore.newNotification.type"
           v-bind="fieldDefaultProps"
           emit-value
+          map-options
           class="col"
           label="Notification type"
           :disable="notificationPageStore.isEditingNotification"
@@ -63,7 +64,7 @@
           unelevated
           color="primary"
           class="col-shrink"
-          label="Salvar"
+          label="Save"
           @click="saveNotification" />
       </div>
     </q-form>

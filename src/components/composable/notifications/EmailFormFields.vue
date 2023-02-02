@@ -5,6 +5,7 @@
         v-model="notificationPageStore.newNotification.options.accountType"
         v-bind="props.fieldProps"
         emit-value
+        map-options
         class="col"
         label="Email account"
         :options="accountTypes"
