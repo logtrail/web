@@ -118,7 +118,7 @@ const $route = useRoute();
 const menus = [
   {
     id: 'logs',
-    icon: 'dashboard',
+    icon: 'view_day',
     label: 'Logs',
     route: '/',
   },
@@ -130,7 +130,7 @@ const menus = [
   },
   {
     id: 'logtypes',
-    icon: 'data_object',
+    icon: 'storage', // 'data_object',
     label: 'Logtypes',
     route: '/logtypes',
   },
