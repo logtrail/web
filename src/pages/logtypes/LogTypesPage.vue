@@ -128,6 +128,13 @@ const columns: ColumnTypes[] = [
     align: 'left',
   },
   {
+    name: 'fields',
+    label: 'Fields',
+    field: 'fields',
+    align: 'left',
+    format: (val, row) => `${row.length} fields`,
+  },
+  {
     name: 'actions',
     align: 'right',
     label: 'Actions',
@@ -161,9 +168,13 @@ function editLogType(logTypeId: string): void {
 
   const {
     _id,
+    name,
+    fields,
   } = logTypeDataToEdit;
 
   logTypePageStore.newLogType = {
+    name,
+    fields,
     _id,
   };
 
