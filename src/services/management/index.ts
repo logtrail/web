@@ -4,7 +4,7 @@ import { BASE_URL } from './constants';
 /**
  * Get collection logs status
  */
-async function statusCollection() {
+async function collectionStatus() {
   // @ts-ignore
   const retData = await this.get(`${BASE_URL}/status`);
   return getData(retData);
@@ -14,7 +14,7 @@ async function statusCollection() {
  * Resize collection.
  * This feature only to work in mongo version >= 6.0
  */
-async function resizeCollection(size: number) {
+async function collectionResize(size: number) {
   // @ts-ignore
   const retData = await this.path(`${BASE_URL}/resize`, { size });
   return getData(retData);
@@ -25,7 +25,7 @@ async function resizeCollection(size: number) {
  */
 export function managementModule(this: any) {
   return {
-    statusCollection: statusCollection.bind(this),
-    resizeCollection: resizeCollection.bind(this),
+    collectionStatus: collectionStatus.bind(this),
+    collectionResize: collectionResize.bind(this),
   };
 }

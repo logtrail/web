@@ -66,7 +66,7 @@ async function deleteById(id: string, projection?: string) {
 }
 
 /**
- * Methos to management the notifications
+ * Methods to management the categories
  */
 export function categoriesModule(this: any) {
   return {
