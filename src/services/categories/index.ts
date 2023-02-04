@@ -3,6 +3,7 @@ import { Notification } from 'src/shared/interfaces';
 import { getData } from 'src/shared/helpers';
 
 import { Find } from './interfaces';
+import { BASE_URL } from './constants';
 
 /**
  * Create a new notification
@@ -10,7 +11,7 @@ import { Find } from './interfaces';
  */
 async function create(payload: Notification) {
   // @ts-ignore
-  const retData = await this.post('/notification', payload);
+  const retData = await this.post(BASE_URL, payload);
   return getData(retData);
 }
 
@@ -20,7 +21,7 @@ async function create(payload: Notification) {
  */
 async function find(queryParams: Find) {
   const query = new URLSearchParams({ ...omitBy(queryParams, isEmpty) });
-  let url = '/notification';
+  let url = BASE_URL;
 
   if (!isEmpty(query)) url = `${url}?${query}`;
 
@@ -35,7 +36,7 @@ async function find(queryParams: Find) {
  */
 async function updateById(id: string, payload: Partial<Notification>) {
   // @ts-ignore
-  const retData = await this.path(`/notification/${id}`, payload);
+  const retData = await this.path(`${BASE_URL}/${id}`, payload);
   return getData(retData);
 }
 
@@ -45,7 +46,7 @@ async function updateById(id: string, payload: Partial<Notification>) {
  * @param projection: string - projection to get some fields
  */
 async function findById(id: string, projection?: string) {
-  let url = `/notification/${id}`;
+  let url = `${BASE_URL}/${id}`;
   if (projection) url = `${url}?projection=${projection}`;
 
   // @ts-ignore
@@ -60,7 +61,7 @@ async function findById(id: string, projection?: string) {
  */
 async function deleteById(id: string, projection?: string) {
   // @ts-ignore
-  const retData = await this.delete(`/notification/${id}`);
+  const retData = await this.delete(`${BASE_URL}/${id}`);
   return getData(retData);
 }
 
