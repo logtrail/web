@@ -1,4 +1,4 @@
-export type Columns = {
+export type ColumnTypes = {
   field: string | ((row: any) => any);
   label: string;
   name: string,
@@ -14,5 +14,3 @@ export type Columns = {
   sortOrder?: 'ad' | 'da';
   style?: string | ((row: any) => string);
 };
-
-export default Columns;

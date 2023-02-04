@@ -118,13 +118,21 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
 
-import useNotificationPageStore from 'stores/pages/notificationsPage';
+import { services } from 'src/services';
 
-import ColumnTypes from './columns.type';
+import useNotificationPageStore from 'stores/pages/notificationsPage';
+import { ColumnTypes } from './types';
+
+console.log('SERVICE', services);
+debugger;
+
+onMounted(async () => {
+  const nada = await services.notification.find();
+});
 
 const $q = useQuasar();
 const notificationPageStore = useNotificationPageStore();
