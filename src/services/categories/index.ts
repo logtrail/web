@@ -1,23 +1,23 @@
 import { omitBy, isEmpty } from 'lodash';
-import { Notification } from 'src/shared/interfaces';
+import { Category } from 'src/shared/interfaces';
 import { getData } from 'src/shared/helpers';
 
 import { Find } from './interfaces';
 import { BASE_URL } from './constants';
 
 /**
- * Create a new notification
- * @param payload: Notification - Payload to create new notification
+ * Create a new category
+ * @param payload: Category - Payload to create new category
  */
-async function create(payload: Notification) {
+async function create(payload: Category) {
   // @ts-ignore
   const retData = await this.post(BASE_URL, payload);
   return getData(retData);
 }
 
 /**
- * Find notifications
- * @param queryParams: Find - Params to find notifications
+ * Find categories
+ * @param queryParams: Find - Params to find categories
  */
 async function find(queryParams: Find) {
   const query = new URLSearchParams({ ...omitBy(queryParams, isEmpty) });
@@ -31,18 +31,18 @@ async function find(queryParams: Find) {
 }
 
 /**
- * Update a notification by notification id
- * @param payload: Notification - Payload to update a new notification
+ * Update a category by category id
+ * @param payload: Category - Payload to update a new category
  */
-async function updateById(id: string, payload: Partial<Notification>) {
+async function updateById(id: string, payload: Partial<Category>) {
   // @ts-ignore
   const retData = await this.path(`${BASE_URL}/${id}`, payload);
   return getData(retData);
 }
 
 /**
- * Find a notification by id
- * @param id: string - Notification id
+ * Find a category by id
+ * @param id: string - Category id
  * @param projection: string - projection to get some fields
  */
 async function findById(id: string, projection?: string) {
@@ -55,8 +55,8 @@ async function findById(id: string, projection?: string) {
 }
 
 /**
- * Delete a notification by id
- * @param id: string - Notification id
+ * Delete a category by id
+ * @param id: string - Category id
  * @param projection: string - projection to get some fields
  */
 async function deleteById(id: string, projection?: string) {
