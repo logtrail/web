@@ -127,11 +127,8 @@ import { services } from 'src/services';
 import useNotificationPageStore from 'stores/pages/notificationsPage';
 import { ColumnTypes } from './types';
 
-console.log('SERVICE', services);
-debugger;
-
 onMounted(async () => {
-  const nada = await services.notification.find();
+  // const nada = await services.notifications.find();
 });
 
 const $q = useQuasar();

@@ -1,23 +1,23 @@
 import { omitBy, isEmpty } from 'lodash';
-import { Notification } from 'src/shared/interfaces';
+import { SearchSchema } from 'src/shared/interfaces';
 import { getData } from 'src/shared/helpers';
 
 import { Find } from './interfaces';
 import { BASE_URL } from './constants';
 
 /**
- * Create a new notification
- * @param payload: Notification - Payload to create new notification
+ * Create a new searchSchema
+ * @param payload: searchSchema - Payload to create new searchSchema
  */
-async function create(payload: Notification) {
+async function create(payload: SearchSchema) {
   // @ts-ignore
   const retData = await this.post(BASE_URL, payload);
   return getData(retData);
 }
 
 /**
- * Find notifications
- * @param queryParams: Find - Params to find notifications
+ * Find searchSchemas
+ * @param queryParams: Find - Params to find searchSchemas
  */
 async function find(queryParams: Find) {
   const query = new URLSearchParams({ ...omitBy(queryParams, isEmpty) });
@@ -31,18 +31,18 @@ async function find(queryParams: Find) {
 }
 
 /**
- * Update a notification by notification id
- * @param payload: Notification - Payload to update a new notification
+ * Update a searchSchema by searchSchema id
+ * @param payload: searchSchema - Payload to update a new searchSchema
  */
-async function updateById(id: string, payload: Partial<Notification>) {
+async function updateById(id: string, payload: Partial<SearchSchema>) {
   // @ts-ignore
   const retData = await this.path(`${BASE_URL}/${id}`, payload);
   return getData(retData);
 }
 
 /**
- * Find a notification by id
- * @param id: string - Notification id
+ * Find a searchSchema by id
+ * @param id: string - searchSchema id
  * @param projection: string - projection to get some fields
  */
 async function findById(id: string, projection?: string) {
@@ -55,8 +55,8 @@ async function findById(id: string, projection?: string) {
 }
 
 /**
- * Delete a notification by id
- * @param id: string - Notification id
+ * Delete a searchSchema by id
+ * @param id: string - searchSchema id
  * @param projection: string - projection to get some fields
  */
 async function deleteById(id: string, projection?: string) {
@@ -66,7 +66,7 @@ async function deleteById(id: string, projection?: string) {
 }
 
 /**
- * Methos to management the notifications
+ * Methos to management the searchSchemas
  */
 export function searchSchemasModule(this: any) {
   return {

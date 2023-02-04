@@ -1,9 +1,8 @@
 /**
- * Find notifications
+ * Find search schema
  */
 export interface Find {
   name?: string;
-  type?: string;
   page?: number;
   perPage?: number;
   projection?: string;
