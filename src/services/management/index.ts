@@ -1,66 +1,22 @@
-import { omitBy, isEmpty } from 'lodash';
-import { Notification } from 'src/shared/interfaces';
 import { getData } from 'src/shared/helpers';
-
-import { Find } from './interfaces';
+import { BASE_URL } from './constants';
 
 /**
- * Create a new notification
- * @param payload: Notification - Payload to create new notification
+ * Get collection logs status
  */
-async function create(payload: Notification) {
+async function statusCollection() {
   // @ts-ignore
-  const retData = await this.post('/notification', payload);
+  const retData = await this.get(`${BASE_URL}/status`);
   return getData(retData);
 }
 
 /**
- * Find notifications
- * @param queryParams: Find - Params to find notifications
+ * Resize collection.
+ * This feature only to work in mongo version >= 6.0
  */
-async function find(queryParams: Find) {
-  const query = new URLSearchParams({ ...omitBy(queryParams, isEmpty) });
-  let url = '/notification';
-
-  if (!isEmpty(query)) url = `${url}?${query}`;
-
+async function resizeCollection(size: number) {
   // @ts-ignore
-  const retData = await this.get(url);
-  return getData(retData);
-}
-
-/**
- * Update a notification by notification id
- * @param payload: Notification - Payload to update a new notification
- */
-async function updateById(id: string, payload: Partial<Notification>) {
-  // @ts-ignore
-  const retData = await this.path(`/notification/${id}`, payload);
-  return getData(retData);
-}
-
-/**
- * Find a notification by id
- * @param id: string - Notification id
- * @param projection: string - projection to get some fields
- */
-async function findById(id: string, projection?: string) {
-  let url = `/notification/${id}`;
-  if (projection) url = `${url}?projection=${projection}`;
-
-  // @ts-ignore
-  const retData = await this.get(url);
-  return getData(retData);
-}
-
-/**
- * Delete a notification by id
- * @param id: string - Notification id
- * @param projection: string - projection to get some fields
- */
-async function deleteById(id: string, projection?: string) {
-  // @ts-ignore
-  const retData = await this.delete(`/notification/${id}`);
+  const retData = await this.path(`${BASE_URL}/resize`, { size });
   return getData(retData);
 }
 
@@ -69,10 +25,7 @@ async function deleteById(id: string, projection?: string) {
  */
 export function managementModule(this: any) {
   return {
-    create: create.bind(this),
-    find: find.bind(this),
-    updateById: updateById.bind(this),
-    findById: findById.bind(this),
-    deleteById: deleteById.bind(this),
+    statusCollection: statusCollection.bind(this),
+    resizeCollection: resizeCollection.bind(this),
   };
 }
