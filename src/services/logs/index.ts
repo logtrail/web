@@ -1,5 +1,4 @@
 import { omitBy, isEmpty } from 'lodash';
-import { Notification } from 'src/shared/interfaces';
 import { getData } from 'src/shared/helpers';
 
 import { Find } from './interfaces';
