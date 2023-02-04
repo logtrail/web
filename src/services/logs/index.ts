@@ -67,7 +67,7 @@ async function deleteById(id: string, projection?: string) {
 /**
  * Methos to management the notifications
  */
-export function notificationsModule(this: any) {
+export function logsModule(this: any) {
   return {
     create: create.bind(this),
     find: find.bind(this),

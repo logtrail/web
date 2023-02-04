@@ -3,7 +3,11 @@ import Axios, { AxiosRequestConfig } from 'axios';
 // --------------- //
 // SERVICE MODULES //
 // --------------- //
-import { notificationModule } from './notifications';
+import { categoriesModule } from './categories';
+import { logsModule } from './logs';
+import { managementModule } from './management';
+import { notificationsModule } from './notifications';
+import { searchSchemasModule } from './searchSchemas';
 
 // ----------------- //
 // ENVS FOR SERVICES //
@@ -37,5 +41,9 @@ clientHttp.interceptors.request.use((request: AxiosRequestConfig) => {
  * Export modules for service
  */
 export const services = {
-  notification: notificationModule.apply(clientHttp),
+  categories: categoriesModule.apply(clientHttp),
+  logs: logsModule.apply(clientHttp),
+  management: managementModule.apply(clientHttp),
+  notifications: notificationsModule.apply(clientHttp),
+  searchSchemas: searchSchemasModule.apply(clientHttp),
 };
