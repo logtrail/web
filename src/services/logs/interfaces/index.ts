@@ -15,7 +15,7 @@ export interface Find {
   limit?: number;
   nextCursor?: string;
   previousCursor?: string;
-  level: string;
+  level?: string;
   categories?: string[];
   created: {
     start: string;

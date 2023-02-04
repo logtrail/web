@@ -6,16 +6,11 @@ import { BASE_URL } from './constants';
 
 /**
  * Find notifications
- * @param queryParams: Find - Params to find notifications
+ * @param payload: Find - Params to find notifications
  */
-async function find(queryParams: Find) {
-  const query = new URLSearchParams({ ...omitBy(queryParams, isEmpty) });
-  let url = BASE_URL;
-
-  if (!isEmpty(query)) url = `${url}?${query}`;
-
+async function find(payload: Find) {
   // @ts-ignore
-  const retData = await this.get(url);
+  const retData = await this.post(`${BASE_URL}/search`, payload);
   return getData(retData);
 }
 
