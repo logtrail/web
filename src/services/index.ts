@@ -15,7 +15,8 @@ import { searchSchemasModule } from './searchSchemas';
 
 const baseURL = process?.env?.SERVER_URI
   ? process?.env?.SERVER_URI
-  : 'http://localhost:3005/v1';
+  // : 'http://localhost:3005/v1';
+  : 'https://8637-2804-1b0-1402-e104-d37-85a0-ebc2-98b3.sa.ngrok.io/v1';
 
 /**
  * client http
@@ -28,6 +29,7 @@ const clientHttp = Axios.create({ baseURL });
 clientHttp.interceptors.request.use((request: AxiosRequestConfig) => {
   const tokenJwt = 'My token';
   request.headers.common.Authorization = tokenJwt;
+  request.headers.common['ngrok-skip-browser-warning'] = true;
 
   return request;
 });

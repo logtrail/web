@@ -9,7 +9,7 @@ export interface EmailAccountType {
   smtp?: string;
   port?: number;
   useTLS?: boolean;
-};
+}
 
 /**
  * Notification
@@ -22,4 +22,4 @@ export interface Notification {
   _id?: string;
   created?: string;
   modified?: string;
-};
+}

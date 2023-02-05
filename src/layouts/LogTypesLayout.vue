@@ -2,34 +2,7 @@
   <q-layout
     view="hHh LpR lFf"
     :class="[logTypesPageStore.isAddingLogType && 'adding-logType']">
-    <q-header class="bg-dark q-px-md">
-      <q-toolbar class="q-px-none">
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer" />
-
-          <router-link to="/">
-            <img
-              alt=""
-              class="q-ml-md"
-              src="logo.png">
-          </router-link>
-        <q-space />
-
-        <div>
-          <q-btn
-            dense
-            round
-            unelevated
-            color="primary"
-            icon="person" />
-        </div>
-      </q-toolbar>
-    </q-header>
+    <LtHeader @toggle-left-drawer="toggleLeftDrawer" />
 
     <q-drawer
       v-model="leftDrawerOpen"
@@ -52,24 +25,9 @@
         </q-scroll-area>
       </template>
 
-      <q-list @click.stop="() => ''">
-        <q-item
-          v-for="menu in menus"
-          v-ripple
-          exact
-          :key="menu.id"
-          :to="menu.route">
-          <q-item-section avatar>
-            <q-icon
-              color="dark"
-              :name="menu.icon" />
-          </q-item-section>
-
-          <q-item-section class="">
-            {{ menu.label }}
-          </q-item-section>
-        </q-item>
-      </q-list>
+      <LtDrawerMenu
+        :items="menus"
+        @click.stop="() => ''" />
     </q-drawer>
 
     <q-page-container>
@@ -106,6 +64,9 @@ import {
 import { useRoute } from 'vue-router';
 
 import useLogTypesPageStore from 'src/stores/pages/logTypesPage';
+
+import LtHeader from 'components/general/header/LtHeader.vue';
+import LtDrawerMenu from 'components/general/menu/LtDrawerMenu.vue';
 import LogTypesForm from 'components/composable/logTypes/LogTypesForm.vue';
 
 const logTypesPageStore = useLogTypesPageStore();
@@ -183,29 +144,6 @@ onMounted(() => {
 
 <style lang="scss">
 // $
-
-.q-item__section--avatar {
-  min-width: 32px;
-}
-
-.q-router-link--active {
-  background: $primary;
-  color: $secondary!important;
-  font-weight: 600;
-}
-
-.mini--active {
-  color: $primary!important;
-}
-
-.mini-icon {
-  font-size: 1.718em;
-  padding: 2px 16px;
-
-  & + & {
-    margin-top: 18px;
-  }
-}
 
 .adding-logType {
   .q-page,

@@ -153,8 +153,4 @@ function removeLogTypeField(index) {
   border-radius: 4px;
   padding: 12px;
 }
-
-.secondary-btn.q-btn--flat {
-  border: 1px solid $primary;
-}
 </style>

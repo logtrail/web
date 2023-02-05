@@ -1,3 +1,7 @@
 .btn-primary {
   border: 1px solid $secondary;
 }
+
+.secondary-btn.q-btn--flat {
+  border: 1px solid $primary;
+}

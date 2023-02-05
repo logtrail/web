@@ -4,89 +4,220 @@
       <p class="text-h3 col-grow q-mr-md q-mb-none">Logs</p>
     </div>
 
-    <div class="row q-pb-sm full-width q-gutter-sm">
-      <q-input label="Start Date" filled v-model="startDate">
-        <template v-slot:prepend>
-          <q-icon name="event" class="cursor-pointer">
-            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date v-model="startDate" mask="YYYY-MM-DD HH:mm">
-                <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat></q-btn>
-                </div>
-              </q-date>
-            </q-popup-proxy>
-          </q-icon>
-        </template>
+    <div class="row q-pb-sm full-width q-col-gutter-sm items-center logs-simple-filter">
+      <div class="row col-12 col-md-6 col-lg-3">
+        <LtInput
+          v-model="startDate"
+          readonly
+          class="col"
+          label="Start Date">
+          <template v-slot:prepend>
+            <q-icon
+              class="cursor-pointer"
+              name="event">
+              <q-popup-proxy
+                cover
+                transition-hide="scale"
+                transition-show="scale">
+                <q-date
+                  v-model="startDate"
+                  mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-end">
+                    <q-btn
+                      v-close-popup
+                      flat
+                      color="primary"
+                      label="Close" />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
 
-        <template v-slot:append>
-          <q-icon name="access_time" class="cursor-pointer">
-            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-time v-model="startDate" mask="YYYY-MM-DD HH:mm" format24h>
-                <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat></q-btn>
-                </div>
-              </q-time>
-            </q-popup-proxy>
-          </q-icon>
-        </template>
-      </q-input>
+          <template v-slot:append>
+            <q-icon
+              class="cursor-pointer"
+              name="access_time">
+              <q-popup-proxy
+                cover
+                transition-hide="scale"
+                transition-show="scale">
+                <q-time
+                  v-model="startDate"
+                  format24h
+                  mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-end">
+                    <q-btn
+                      v-close-popup
+                      flat
+                      color="primary"
+                      label="Close" />
+                  </div>
+                </q-time>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </LtInput>
+      </div>
 
-      <q-input label="End Date" filled v-model="endDate">
-        <template v-slot:prepend>
-          <q-icon name="event" class="cursor-pointer">
-            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date v-model="endDate" mask="YYYY-MM-DD HH:mm">
-                <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat></q-btn>
-                </div>
-              </q-date>
-            </q-popup-proxy>
-          </q-icon>
-        </template>
+      <div class="row col-12 col-md-6 col-lg-3">
+        <LtInput
+          v-model="endDate"
+          readonly
+          class="col"
+          label="End Date">
+          <template v-slot:prepend>
+            <q-icon
+              class="cursor-pointer"
+              name="event">
+              <q-popup-proxy
+                cover
+                transition-hide="scale"
+                transition-show="scale">
+                <q-date
+                  v-model="endDate"
+                  mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-end">
+                    <q-btn
+                      v-close-popup
+                      flat
+                      color="primary"
+                      label="Close" />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
 
-        <template v-slot:append>
-          <q-icon name="access_time" class="cursor-pointer">
-            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-time v-model="endDate" mask="YYYY-MM-DD HH:mm" format24h>
-                <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat></q-btn>
-                </div>
-              </q-time>
-            </q-popup-proxy>
-          </q-icon>
-        </template>
-      </q-input>
+          <template v-slot:append>
+            <q-icon
+              class="cursor-pointer"
+              name="access_time">
+              <q-popup-proxy
+                cover
+                transition-hide="scale"
+                transition-show="scale">
+                <q-time
+                  v-model="endDate"
+                  format24h
+                  mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-end">
+                    <q-btn
+                      v-close-popup
+                      flat
+                      color="primary"
+                      label="Close" />
+                  </div>
+                </q-time>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </LtInput>
+      </div>
 
-      <q-select
-        v-model="levels"
-        outlined
-        multiple
-        label="Levels"
-        class="col-2"
-        :options="LEVEL_OPTIONS"/>
+      <div class="row col-12 col-md-6 col-lg-3">
+        <q-select
+          v-model="levels"
+          dense
+          hide-bottom-space
+          multiple
+          no-error-icon
+          outlined
+          bg-color="white"
+          class="col"
+          label="Levels"
+          :options="LEVEL_OPTIONS">
+          <template v-slot:option="scope">
+            <q-item v-bind="scope.itemProps">
+              <q-item-section>
+                <q-item-label>
+                  <q-chip :color="scope.opt.color || 'grey-4'">
+                    {{ scope.opt.label }}
+                  </q-chip>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
 
-      <q-select
-        v-model="categories"
-        class="col"
-        filled
-        multiple
-        :options="categoriesOptions"
-        :loading="searchMoreCategories"
-        @virtual-scroll="getCategories" />
+          <template v-slot:selected>
+            <div
+              v-if="levels.length"
+              class="row items-center">
+              <q-chip
+                dense
+                :color="levels[0].color || 'grey-4'">
+                {{ levels[0].label }}
+              </q-chip>
+              <q-chip
+                v-if="levels.length > 1"
+                dense>
+                +{{ levels.length - 1 }}
+              </q-chip>
+            </div>
+          </template>
+        </q-select>
+      </div>
+
+      <div class="row col-12 col-md-6 col-lg-3">
+        <LtSelect
+          v-model="categories"
+          multiple
+          class="col"
+          label="Categories"
+          :loading="searchMoreCategories"
+          :options="categoriesOptions"
+          @virtual-scroll="getCategories">
+          <template v-slot:selected>
+            <div
+              v-if="categories.length"
+              class="row items-center">
+              <q-chip dense>
+                {{ categories[0].label }}
+              </q-chip>
+              <q-chip
+                v-if="categories.length > 1"
+                dense>
+                +{{ categories.length - 1 }}
+              </q-chip>
+            </div>
+          </template>
+        </LtSelect>
+      </div>
+
+      <div class="row reverse full-width items-center q-col-gutter-sm">
+        <div class="row col-shrink">
+          <q-btn
+            no-caps
+            unelevated
+            class="col"
+            color="primary"
+            label="Search"
+            icon="search"
+            @click.stop="getLogs" />
+        </div>
+
+        <div class="row col-shrink">
+          <q-btn
+            flat
+            no-caps
+            unelevated
+            color="primary"
+            class="col secondary-btn"
+            icon="filter_alt"
+            @click.stop="setAdvancedFilters">
+            <p class="q-mb-none q-mx-sm">
+              Advanced Search
+            </p>
+            <q-chip
+              v-if="advancedFilters.length"
+              dense
+              color="primary">
+              {{ advancedFilters.length }}
+            </q-chip>
+          </q-btn>
+        </div>
+      </div>
     </div>
-    <div class="row">
-      <q-btn
-        color="green"
-        label="Buscar"
-        @click.stop="getLogs"/>
-    </div>
-
-<!--    <q-input label="Bucket name" filled v-model="advFilterBucketName" />-->
-<!--    <q-input label="Field name" filled v-model="fieldName" />-->
-<!--    <q-input label="Operation" filled v-model="operation" />-->
-<!--    <q-input label="Value" filled v-model="" />-->
-
-    <pre>{{ advancedFilters }}</pre>
 
     <template v-if="logsData.length">
       <div class="row full-width full-height">
@@ -103,16 +234,235 @@
               </pre>
             </q-td>
           </template>
+
+          <template v-slot:body-cell-level="props">
+            <q-td :props="props">
+              <q-chip :color="getLevelColorByName(props.row.level) || 'grey-4'">
+                {{ props.row.level }}
+              </q-chip>
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-created="props">
+            <q-td :props="props">
+              {{ formatDate(props.row.created, 'YYYY/MM/DD HH:mm:ss') }}
+            </q-td>
+          </template>
         </q-table>
 
-        <q-btn color="red">Previous</q-btn>
-        <q-btn color="blue" @click.stop="nextPage">Next</q-btn>
+        <div class="row col-12 justify-center items-center q-col-gutter-sm q-mt-md">
+          <div class="row col-shrink">
+            <q-btn
+              flat
+              no-caps
+              unelevated
+              color="primary"
+              class="col secondary-btn"
+              icon="arrow_back"
+              label="Previous"
+              @click.stop="previousPage" />
+          </div>
+
+          <div class="row col-shrink">
+            <q-btn
+              no-caps
+              unelevated
+              color="primary"
+              class="col"
+              icon-right="arrow_forward"
+              label="Next"
+              @click.stop="nextPage" />
+          </div>
+        </div>
       </div>
     </template>
 
     <template v-else>
-      <NoData/>
+      <NoData />
     </template>
+
+    <q-dialog
+      v-model="advancedFiltersDialog"
+      persistent>
+      <div class="row full-width advanced-filters-card content-start">
+        <div class="row col-12 justify-between items-center q-col-gutter-sm">
+          <div class="row col-grow">
+            <span class="col text-h5">Advanced Filters</span>
+          </div>
+
+          <div class="col-shrink">
+            <q-btn
+              dense
+              flat
+              no-caps
+              round
+              unelevated
+              class="col"
+              icon="close"
+              @click="closeAdvancedFilters()" />
+          </div>
+        </div>
+
+        <div class="row full-width advanced-filters-card_content q-col-gutter-sm">
+          <p class="col-12 text-h6">Add new Filter</p>
+          <div class="row col-6">
+            <LtSelect
+              v-model="fieldName"
+              class="col"
+              label="Field name"
+              :options="fieldNameOptions"
+              @update:model-value="changeOperationByFieldType" />
+          </div>
+
+          <div class="row col-6">
+            <LtSelect
+              v-model="operation"
+              class="col"
+              label="Operation"
+              :options="operationOptions" />
+          </div>
+
+          <template v-if="fieldName?.bucketName === 'numberBucket'">
+            <template v-if="operation?.value === 'range'">
+              <div class="row col-3">
+                <LtSelect
+                  v-model="rangeStartOperation"
+                  class="col"
+                  label="Range start"
+                  :options="numberOperations" />
+              </div>
+              <div class="row col-3">
+                <LtInput
+                  v-model="rangeStart"
+                  class="col"
+                  label="Range start" />
+              </div>
+              <div class="row col-3">
+                <LtSelect
+                  v-model="rangeEndOperation"
+                  class="col"
+                  label="Operation"
+                  :options="numberOperations" />
+              </div>
+              <div class="row col-3">
+                <LtInput
+                  v-model="rangeEnd"
+                  class="col"
+                  label="Range end" />
+              </div>
+            </template>
+          </template>
+
+          <template v-if="fieldName?.bucketName === 'stringBucket'">
+            <template v-if="operation?.value">
+              <div class="row col-12">
+                <LtInput
+                  v-model="stringCompare"
+                  class="col"
+                  label="String to compare" />
+              </div>
+            </template>
+          </template>
+
+          <template v-if="fieldName?.bucketName === 'booleanBucket'">
+            <template v-if="operation?.value">
+              <div class="row col-12">
+                <LtSelect
+                  v-model="booleanCompare"
+                  class="col"
+                  label="Value to compare"
+                  :options="booleanValues" />
+              </div>
+            </template>
+          </template>
+
+          <div class="row full-width justify-end">
+            <q-btn
+              flat
+              no-caps
+              unelevated
+              class="col-shrink secondary-btn"
+              color="primary"
+              label="Add filter"
+              icon="add"
+              @click.stop="addNewAdvancedFilter" />
+          </div>
+        </div>
+
+        <q-separator class="full-width q-mt-lg" />
+
+        <template v-if="advancedFilters.length">
+          <div class="row full-width advanced-filters-card_filter-list">
+            <div class="row full-width">
+              <div
+                v-for="(filter, index) in advancedFilters"
+                class="col-12 row advanced-filters-card_filter-list--item"
+                :key="`filter-${index}`">
+                <div class="row col">
+                  <span class="col-12 text-weight-bold">
+                    Field:
+                  </span>
+                  <span>
+                    {{ filter.field }}
+                  </span>
+                </div>
+
+                <div class="row col">
+                  <span class="col-12 text-weight-bold">
+                    Operation:
+                  </span>
+                  <span>
+                    {{ mountOperation(filter) }}
+                  </span>
+                </div>
+
+                <div class="row col">
+                  <span class="col-12 text-weight-bold">
+                    Value:
+                  </span>
+                  <span>
+                    {{ mountValue(filter) }}
+                  </span>
+                </div>
+
+                <div class="row col-shrink justify-end content-center">
+                  <q-btn
+                    dense
+                    no-caps
+                    unelevated
+                    round
+                    color="red"
+                    class="content-start"
+                    icon="delete"
+                    @click="removeAdvancedFilter(index)" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row full-width justify-end q-mt-xl">
+            <q-btn
+              no-caps
+              unelevated
+              class="col-shrink"
+              color="primary"
+              label="Apply filters"
+              icon="filter_list"
+              @click.stop="closeAdvancedFilters" />
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="row full-width q-mt-xl justify-center">
+            <q-banner class="bg-grey-4 col-shrink rounded-borders">
+              <span class="text-weight-medium">
+                You don't have added filters yet!
+              </span>
+            </q-banner>
+          </div>
+        </template>
+      </div>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -124,11 +474,13 @@ export default {
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-
 import { isEmpty } from 'lodash';
 import { onMounted, ref } from 'vue';
+
 import { services } from 'src/services';
 
+import LtInput from 'components/general/input/LtInput.vue';
+import LtSelect from 'components/general/select/LtSelect.vue';
 import NoData from './EmptyLogs.vue';
 
 // ------------- //
@@ -154,7 +506,7 @@ const COLUMNS: any[] = [
   {
     name: 'level',
     align: 'left',
-    label: 'Lavel',
+    label: 'Level',
     field: 'level',
   },
   {
@@ -166,15 +518,44 @@ const COLUMNS: any[] = [
   {
     name: 'created',
     align: 'right',
-    label: 'Created on',
+    label: 'Created at',
     field: 'created',
   },
 ];
+
 const LEVEL_OPTIONS = [
-  { value: 'info', label: 'Information' },
-  { value: 'warning', label: 'Warning' },
-  { value: 'danger', label: 'Danger' },
+  { value: 'info', label: 'Information', color: 'info' },
+  { value: 'warning', label: 'Warning', color: 'warning' },
+  { value: 'danger', label: 'Danger', color: 'red-4' },
 ];
+
+const numberOperations = [
+  { label: 'Less than', value: 'lt' },
+  { label: 'Less then or equal', value: 'lte' },
+  { label: 'Greater than', value: 'gt' },
+  { label: 'Greater than or equal', value: 'gte' },
+];
+
+const booleanValues = [
+  { label: 'True', value: true },
+  { label: 'False', value: false },
+];
+
+const ALL_OPERATIONS = {
+  numberBucket: [
+    { label: 'Range', value: 'range' },
+  ],
+  stringBucket: [
+    { label: 'Contain', value: 'contain' },
+    { label: 'Not contain', value: 'notContain' },
+    { label: 'Start with', value: 'startWith' },
+    { label: 'Equal', value: 'equal' },
+  ],
+  booleanBucket: [
+    { label: 'Contain', value: 'contain' },
+    { label: 'Not contain', value: 'notContain' },
+  ],
+};
 
 // ----- //
 // REF'S //
@@ -188,6 +569,30 @@ const advancedFilters = ref([]);
 const categories = ref([]);
 const categoriesOptions = ref([]);
 const searchMoreCategories = ref(false);
+
+const advFilterBucketName = ref(null);
+const fieldName = ref(null);
+const operation = ref(null);
+
+const fieldNameOptions = ref([
+  { label: 'serviceName', value: 'serviceName', bucketName: 'stringBucket' },
+  { label: 'fileName', value: 'fileName', bucketName: 'stringBucket' },
+  { label: 'message', value: 'message', bucketName: 'stringBucket' },
+  { label: 'line', value: 'line', bucketName: 'numberBucket' },
+  { label: 'data', value: 'data', bucketName: 'booleanBucket' },
+]);
+
+const operationOptions = ref([]);
+
+const rangeStartOperation = ref(null);
+const rangeStart = ref('');
+const rangeEndOperation = ref(null);
+const rangeEnd = ref('');
+
+const stringCompare = ref('');
+const booleanCompare = ref(null);
+
+const advancedFiltersDialog = ref(false);
 
 const startDate = ref(
   dayjs()
@@ -215,6 +620,19 @@ onMounted(async () => {
 // ------- //
 // METHODS //
 // ------- //
+
+async function previousPage() {
+  const created = {
+    start: dayjs(startDate.value).toISOString(),
+    end: dayjs(endDate.value).toISOString(),
+  };
+  const [firstRegister] = logsData.value;
+
+  // eslint-disable-next-line no-underscore-dangle
+  const nextCursor = firstRegister._id as string;
+  logsData.value = await services.logs.search({ created, nextCursor, limit: 10 });
+}
+
 /**
  * Pagination get next page
  */
@@ -271,6 +689,147 @@ async function getLogs() {
   logsData.value = await services.logs.search(payload);
 }
 
+function getLevelColorByName(level: string) {
+  const { color: currentLevelOptionColor } = LEVEL_OPTIONS
+    .find((levelOption) => levelOption.value === level) || {};
+
+  return currentLevelOptionColor;
+}
+
+function setAdvancedFilters() {
+  advancedFiltersDialog.value = true;
+}
+
+function closeAdvancedFilters() {
+  advancedFiltersDialog.value = false;
+}
+
+function changeOperationByFieldType(value: any) {
+  const { bucketName = 'stringBucket' } = value;
+
+  operation.value = null;
+  operationOptions.value = ALL_OPERATIONS[bucketName] || [];
+}
+
+function addNewAdvancedFilter() {
+  const { value: fieldNameValue } = fieldName;
+  const { value: operationValue } = operation;
+
+  let payload = {};
+
+  if (fieldNameValue.bucketName === 'stringBucket') {
+    const { value: stringCompareValue } = stringCompare;
+
+    payload = {
+      field: fieldNameValue.value,
+      operation: operationValue.value,
+      value: stringCompareValue,
+      bucketName: 'string',
+    };
+  }
+
+  if (fieldNameValue.bucketName === 'numberBucket') {
+    const { value: rangeStartValue } = rangeStart;
+    const { value: rangeStartOperationValue } = rangeStartOperation;
+    const { value: rangeEndValue } = rangeEnd;
+    const { value: rangeEndOperationValue } = rangeEndOperation;
+
+    payload = {
+      field: fieldNameValue.value,
+      operation: [rangeStartOperationValue.value, rangeEndOperationValue.value],
+      value: [rangeStartValue, rangeEndValue],
+      bucketName: 'number',
+    };
+  }
+
+  if (fieldNameValue.bucketName === 'booleanBucket') {
+    const { value: booleanCompareValue } = booleanCompare;
+
+    payload = {
+      field: fieldNameValue.value,
+      operation: operationValue.value,
+      value: booleanCompareValue.value,
+      bucketName: 'boolean',
+    };
+  }
+
+  advancedFilters.value.push(payload);
+
+  resetAdvancedFiltersFields();
+}
+
+function resetAdvancedFiltersFields() {
+  // general
+  fieldName.value = null;
+  operation.value = null;
+
+  // number
+  rangeStartOperation.value = null;
+  rangeEndOperation.value = null;
+  rangeStart.value = '';
+  rangeEnd.value = '';
+
+  // string
+  stringCompare.value = '';
+
+  // boolean
+  booleanCompare.value = null;
+}
+
+function removeAdvancedFilter(index: number) {
+  advancedFilters.value.splice(index, 1);
+}
+
+function applyAdvancedFilter() {
+  //
+}
+
+function mountOperation(filter: any) {
+  const { bucketName, operation } = filter;
+
+  const operationLabel = {
+    string: () => {
+      const { label: stringOperationLabel } = ALL_OPERATIONS
+        .stringBucket
+        .find((stringOperation) => stringOperation.value === operation) || {};
+      return stringOperationLabel;
+    },
+    number: () => {
+      const newLabels = operation.map((currentOperation: any) => {
+        const { label: numberOperationLabel } = numberOperations
+          .find((numberOperation) => numberOperation.value === currentOperation) || {};
+
+        return numberOperationLabel;
+      });
+
+      return newLabels.join(' - ');
+    },
+    boolean: () => {
+      const { label: booleanOperationLabel } = ALL_OPERATIONS
+        .booleanBucket
+        .find((booleanOperation) => booleanOperation.value === operation) || {};
+      return booleanOperationLabel;
+    },
+  };
+
+  return operationLabel[bucketName]();
+}
+
+function mountValue(filter: any) {
+  const { bucketName, value } = filter;
+
+  const operationLabel = {
+    string: () => value,
+    number: () => value.join(' - '),
+    boolean: () => (value ? 'True' : 'False'),
+  };
+
+  return operationLabel[bucketName]();
+}
+
+function formatDate(date: Date, format: string) {
+  return dayjs(date).format(format);
+}
 </script>
 
 <style lang="scss">
@@ -287,5 +846,41 @@ $used-area: $header-height + $padding-y + ($title-height * 2);
 
 .logs-no-data {
   height: calc(100vh - #{$used-area}) !important;
+}
+
+.q-field {
+  .q-chip {
+    margin: 0 4px;
+    font-size: 12px;
+  }
+}
+
+.advanced-filters-card {
+  background-color: #fff;
+  padding: 16px;
+  max-width: min(950px, 90%)!important;
+  max-height: min(550px, 90vh)!important;
+  height: min(550px, 90vh)!important;
+
+  &_content {
+    margin-top: 32px;
+  }
+
+  &_filter-list {
+    margin-top: 32px;
+
+    &--item {
+      padding: 4px 12px;
+      border-radius: 4px;
+
+      &:nth-child(odd) {
+        background-color: $grey-2;
+      }
+    }
+  }
+}
+
+.logs-simple-filter {
+  margin-bottom: 32px;
 }
 </style>

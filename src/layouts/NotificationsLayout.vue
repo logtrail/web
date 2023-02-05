@@ -2,34 +2,7 @@
   <q-layout
     view="hHh LpR lFf"
     :class="[notificationPageStore.isAddingNotification && 'adding-notification']">
-    <q-header class="bg-dark q-px-md">
-      <q-toolbar class="q-px-none">
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer" />
-
-          <router-link to="/">
-            <img
-              alt=""
-              class="q-ml-md"
-              src="logo.png">
-          </router-link>
-        <q-space />
-
-        <div>
-          <q-btn
-            dense
-            round
-            unelevated
-            color="primary"
-            icon="person" />
-        </div>
-      </q-toolbar>
-    </q-header>
+    <LtHeader @toggle-left-drawer="toggleLeftDrawer" />
 
     <q-drawer
       v-model="leftDrawerOpen"
@@ -52,24 +25,9 @@
         </q-scroll-area>
       </template>
 
-      <q-list @click.stop="() => ''">
-        <q-item
-          v-for="menu in menus"
-          v-ripple
-          exact
-          :key="menu.id"
-          :to="menu.route">
-          <q-item-section avatar>
-            <q-icon
-              color="dark"
-              :name="menu.icon" />
-          </q-item-section>
-
-          <q-item-section class="">
-            {{ menu.label }}
-          </q-item-section>
-        </q-item>
-      </q-list>
+      <LtDrawerMenu
+        :items="menus"
+        @click.stop="() => ''" />
     </q-drawer>
 
     <q-page-container>
@@ -106,6 +64,9 @@ import {
 import { useRoute } from 'vue-router';
 
 import useNotificationPageStore from 'src/stores/pages/notificationsPage';
+
+import LtHeader from 'components/general/header/LtHeader.vue';
+import LtDrawerMenu from 'components/general/menu/LtDrawerMenu.vue';
 import NotificationForm from 'components/composable/notifications/NotificationForm.vue';
 
 const notificationPageStore = useNotificationPageStore();
