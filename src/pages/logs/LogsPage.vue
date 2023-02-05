@@ -226,7 +226,8 @@
           class="col-12"
           row-key="name"
           :columns="COLUMNS"
-          :rows="logsData">
+          :rows="logsData"
+          :pagination="{ rowsPerPage: 10 }">
           <template v-slot:body-cell-event="props">
             <q-td :props="props">
               <pre>
@@ -626,11 +627,11 @@ async function previousPage() {
     start: dayjs(startDate.value).toISOString(),
     end: dayjs(endDate.value).toISOString(),
   };
-  const [firstRegister] = logsData.value;
+  const lastRegister = logsData.value.at(-1);
 
   // eslint-disable-next-line no-underscore-dangle
-  const nextCursor = firstRegister._id as string;
-  logsData.value = await services.logs.search({ created, nextCursor, limit: 10 });
+  const previousCursor = lastRegister._id as string;
+  logsData.value = await services.logs.search({ created, previousCursor, limit: 10 });
 }
 
 /**
