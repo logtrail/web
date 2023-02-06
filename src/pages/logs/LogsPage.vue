@@ -268,7 +268,8 @@
               <q-td
                 v-for="col in props.cols"
                 :key="col.name"
-                :props="props">
+                :props="props"
+                @click.stop="props.expand = !props.expand">
                 <code v-if="col.name === 'event'">{{ getPartialFromEventValue(col.value) }}</code>
                 <q-chip
                   v-if="col.name === 'level'"
@@ -285,6 +286,7 @@
             </q-tr>
 
             <q-tr
+              auto-width
               :key="props.row._id"
               v-show="props.expand"
               :props="props">
@@ -361,7 +363,8 @@
               label="Search schemes"
               hint="You need to select at least one search scheme"
               :options="searchSchemeOptions"
-              @update:model-value="fieldsToAdvancedFilter"/>
+              @update:model-value="fieldsToAdvancedFilter"
+              @virtual-scroll="getSearchSchemes"/>
           </div>
 
           <div class="row col-12 q-col-gutter-sm">
@@ -547,7 +550,7 @@ import 'prismjs/themes/prism.min.css';
 import 'prismjs/components/prism-javascript';
 
 import dayjs from 'dayjs';
-import { QSelectOption } from 'quasar';
+import { QSelectOption, useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
 import { onMounted, ref } from 'vue';
 
@@ -575,6 +578,7 @@ import {
 // ------- //
 // GLOBALS //
 // ------- //
+const $q = useQuasar();
 const categoriesPagination = { page: 0, perPage: 10 };
 const searchSchemePagination = { page: 0, perPage: 10 };
 
@@ -686,7 +690,7 @@ async function getCategories() {
  * Get categories
  */
 async function getSearchSchemes() {
-  searchMoreSearchSchemes.value = true;
+  searchSchemePagination.value = true;
   categoriesPagination.page += 1;
 
   const { items: searchSchemeData } = await services.searchSchemas.find(categoriesPagination);
@@ -696,7 +700,7 @@ async function getSearchSchemes() {
     value: item.fields,
   }));
 
-  searchMoreSearchSchemes.value = false;
+  searchSchemePagination.value = false;
 }
 
 /**
@@ -952,7 +956,14 @@ async function fieldsToAdvancedFilter(event: any) {
 }
 
 function getPartialFromEventValue(value: string) {
-  const newText = JSON.stringify(value).substring(0, 40);
+  let maxSize = 90;
+
+  if ($q.screen.lt.sm) maxSize = 35;
+  if ($q.screen.lt.md) maxSize = 45;
+  if ($q.screen.lt.lg) maxSize = 55;
+  if ($q.screen.lt.xl) maxSize = 85;
+
+  const newText = JSON.stringify(value).substring(0, maxSize);
   return `${newText}...`;
 }
 
