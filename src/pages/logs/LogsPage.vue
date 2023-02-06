@@ -543,6 +543,7 @@ export default {
 
 <script setup lang="ts">
 import Prism from 'prismjs';
+import 'prismjs/themes/prism.min.css';
 import 'prismjs/components/prism-javascript';
 
 import dayjs from 'dayjs';
