@@ -15,8 +15,7 @@ import { searchSchemasModule } from './searchSchemas';
 
 const baseURL = process?.env?.SERVER_URI
   ? process?.env?.SERVER_URI
-  // : 'http://localhost:3005/v1';
-  : 'https://8637-2804-1b0-1402-e104-d37-85a0-ebc2-98b3.sa.ngrok.io/v1';
+  : 'https://faf0-2804-1b0-1402-e104-15ed-7f7f-1a61-1653.sa.ngrok.io/v1';
 
 /**
  * client http

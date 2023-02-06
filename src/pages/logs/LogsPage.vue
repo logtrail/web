@@ -308,29 +308,42 @@
           <p class="col-12 text-h6">Add new Filter</p>
           <div class="row col-6">
             <LtSelect
-              v-model="fieldName"
+              v-model="searchScheme"
               class="col"
-              label="Field name"
-              :options="fieldNameOptions"
-              @update:model-value="changeOperationByFieldType" />
+              label="Search schemes"
+              hint="You need to select at least one search scheme"
+              :options="searchSchemeOptions"
+              @update:model-value="fieldsToAdvancedFilter"/>
           </div>
 
-          <div class="row col-6">
-            <LtSelect
-              v-model="operation"
-              class="col"
-              label="Operation"
-              :options="operationOptions" />
+          <div class="row col-12 q-col-gutter-sm">
+            <div class="row col-6">
+              <LtSelect
+                v-model="fieldName"
+                class="col"
+                label="Field name"
+                :disable="searchScheme.length === 0"
+                :options="fieldNameOptions"
+                @update:model-value="changeOperationByFieldType" />
+            </div>
+            <div class="row col-6">
+              <LtSelect
+                v-model="operation"
+                class="col"
+                label="Operation"
+                :disable="searchScheme.length === 0"
+                :options="operationOptions" />
+            </div>
           </div>
 
-          <template v-if="fieldName?.bucketName === 'numberBucket'">
+          <template v-if="fieldName?.bucketName === 'numbersBucket'">
             <template v-if="operation?.value === 'range'">
               <div class="row col-3">
                 <LtSelect
                   v-model="rangeStartOperation"
                   class="col"
                   label="Range start"
-                  :options="numberOperations" />
+                  :options="NUMBER_OPERATIONS" />
               </div>
               <div class="row col-3">
                 <LtInput
@@ -343,7 +356,7 @@
                   v-model="rangeEndOperation"
                   class="col"
                   label="Operation"
-                  :options="numberOperations" />
+                  :options="NUMBER_OPERATIONS" />
               </div>
               <div class="row col-3">
                 <LtInput
@@ -352,9 +365,18 @@
                   label="Range end" />
               </div>
             </template>
+
+            <template v-if="operation?.value === 'equal'">
+              <div class="row col-12">
+                <LtInput
+                  v-model="numberEqual"
+                  class="col"
+                  label="Equal value"/>
+              </div>
+            </template>
           </template>
 
-          <template v-if="fieldName?.bucketName === 'stringBucket'">
+          <template v-if="fieldName?.bucketName === 'stringsBucket'">
             <template v-if="operation?.value">
               <div class="row col-12">
                 <LtInput
@@ -365,14 +387,14 @@
             </template>
           </template>
 
-          <template v-if="fieldName?.bucketName === 'booleanBucket'">
+          <template v-if="fieldName?.bucketName === 'booleansBucket'">
             <template v-if="operation?.value">
               <div class="row col-12">
                 <LtSelect
                   v-model="booleanCompare"
                   class="col"
                   label="Value to compare"
-                  :options="booleanValues" />
+                  :options="BOOLEAN_VALUES" />
               </div>
             </template>
           </template>
@@ -421,9 +443,7 @@
                   <span class="col-12 text-weight-bold">
                     Value:
                   </span>
-                  <span>
-                    {{ mountValue(filter) }}
-                  </span>
+                  <span v-html="mountValue(filter)" />
                 </div>
 
                 <div class="row col-shrink justify-end content-center">
@@ -475,6 +495,7 @@ export default {
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import { QSelectOption } from 'quasar';
 import { isEmpty } from 'lodash';
 import { onMounted, ref } from 'vue';
 
@@ -482,133 +503,71 @@ import { services } from 'src/services';
 
 import LtInput from 'components/general/input/LtInput.vue';
 import LtSelect from 'components/general/select/LtSelect.vue';
-import NoData from './EmptyLogs.vue';
+import NoData from 'components/general/banner/NoData.vue';
 
-// ------------- //
-// EMITS / PROPS //
-// ------------- //
+import {
+  OperationOptions,
+  FieldName,
+  SearchScheme,
+  ItemSearchScheme,
+} from './interfaces';
+
+import {
+  COLUMNS,
+  LEVEL_OPTIONS,
+  NUMBER_OPERATIONS,
+  BOOLEAN_VALUES,
+  ALL_OPERATIONS,
+} from './constants';
 
 // ------- //
 // GLOBALS //
 // ------- //
 const categoriesPagination = { page: 0, perPage: 10 };
-
-// --------- //
-// CONSTANTS //
-// --------- //
-const COLUMNS: any[] = [
-  {
-    name: 'event',
-    required: true,
-    label: 'Event',
-    field: 'event',
-    align: 'left',
-  },
-  {
-    name: 'level',
-    align: 'left',
-    label: 'Level',
-    field: 'level',
-  },
-  {
-    name: 'category',
-    align: 'left',
-    label: 'Category',
-    field: 'category',
-  },
-  {
-    name: 'created',
-    align: 'right',
-    label: 'Created at',
-    field: 'created',
-  },
-];
-
-const LEVEL_OPTIONS = [
-  { value: 'info', label: 'Information', color: 'info' },
-  { value: 'warning', label: 'Warning', color: 'warning' },
-  { value: 'danger', label: 'Danger', color: 'red-4' },
-];
-
-const numberOperations = [
-  { label: 'Less than', value: 'lt' },
-  { label: 'Less then or equal', value: 'lte' },
-  { label: 'Greater than', value: 'gt' },
-  { label: 'Greater than or equal', value: 'gte' },
-];
-
-const booleanValues = [
-  { label: 'True', value: true },
-  { label: 'False', value: false },
-];
-
-const ALL_OPERATIONS = {
-  numberBucket: [
-    { label: 'Range', value: 'range' },
-  ],
-  stringBucket: [
-    { label: 'Contain', value: 'contain' },
-    { label: 'Not contain', value: 'notContain' },
-    { label: 'Start with', value: 'startWith' },
-    { label: 'Equal', value: 'equal' },
-  ],
-  booleanBucket: [
-    { label: 'Contain', value: 'contain' },
-    { label: 'Not contain', value: 'notContain' },
-  ],
-};
+const searchSchemePagination = { page: 0, perPage: 10 };
 
 // ----- //
 // REF'S //
 // ----- //
 const levels = ref([]);
 const logsData = ref([]);
-
-const bucketName = ref('');
 const advancedFilters = ref([]);
 
 const categories = ref([]);
 const categoriesOptions = ref([]);
-const searchMoreCategories = ref(false);
+const searchMoreCategories = ref<boolean>(false);
 
-const advFilterBucketName = ref(null);
-const fieldName = ref(null);
-const operation = ref(null);
+const searchScheme = ref<SearchScheme | []>([]);
+const searchSchemeOptions = ref<SearchScheme[] | []>([]);
+const searchMoreSearchSchemes = ref<boolean>(false);
 
-const fieldNameOptions = ref([
-  { label: 'serviceName', value: 'serviceName', bucketName: 'stringBucket' },
-  { label: 'fileName', value: 'fileName', bucketName: 'stringBucket' },
-  { label: 'message', value: 'message', bucketName: 'stringBucket' },
-  { label: 'line', value: 'line', bucketName: 'numberBucket' },
-  { label: 'data', value: 'data', bucketName: 'booleanBucket' },
-]);
+const fieldName = ref<FieldName | null>(null);
+const operation = ref<QSelectOption | null>(null);
 
-const operationOptions = ref([]);
+const fieldNameOptions = ref<FieldName[]>([]);
+const operationOptions = ref<OperationOptions | []>([]);
 
-const rangeStartOperation = ref(null);
-const rangeStart = ref('');
-const rangeEndOperation = ref(null);
-const rangeEnd = ref('');
+const numberEqual = ref<number>(0);
+const rangeStartOperation = ref<any>(null);
+const rangeStart = ref<string>('');
+const rangeEndOperation = ref<any>(null);
+const rangeEnd = ref<string>('');
 
-const stringCompare = ref('');
-const booleanCompare = ref(null);
+const stringCompare = ref<string>('');
+const booleanCompare = ref<any>(null);
 
-const advancedFiltersDialog = ref(false);
+const advancedFiltersDialog = ref<boolean>(false);
 
-const startDate = ref(
+const startDate = ref<string>(
   dayjs()
     .subtract(1, 'hour')
     .format('YYYY/MM/DD HH:mm:ss'),
 );
 
-const endDate = ref(
+const endDate = ref<string>(
   dayjs()
     .format('YYYY/MM/DD HH:mm:ss'),
 );
-
-// -------- //
-// COMPUTED //
-// -------- //
 
 // ---------- //
 // LIFE CYCLE //
@@ -622,20 +581,21 @@ onMounted(async () => {
 // METHODS //
 // ------- //
 
+/**
+ * Previous page in cursor pagination
+ */
 async function previousPage() {
   const created = {
     start: dayjs(startDate.value).toISOString(),
     end: dayjs(endDate.value).toISOString(),
   };
   const lastRegister = logsData.value.at(-1);
-
-  // eslint-disable-next-line no-underscore-dangle
-  const previousCursor = lastRegister._id as string;
+  const previousCursor = lastRegister._id;
   logsData.value = await services.logs.search({ created, previousCursor, limit: 10 });
 }
 
 /**
- * Pagination get next page
+ * Next page in cursor pagination
  */
 async function nextPage() {
   const created = {
@@ -643,9 +603,7 @@ async function nextPage() {
     end: dayjs(endDate.value).toISOString(),
   };
   const [firstRegister] = logsData.value;
-
-  // eslint-disable-next-line no-underscore-dangle
-  const nextCursor = firstRegister._id as string;
+  const nextCursor = firstRegister._id;
   logsData.value = await services.logs.search({ created, nextCursor, limit: 10 });
 }
 
@@ -662,9 +620,27 @@ async function getCategories() {
     label: category.name,
     // eslint-disable-next-line no-underscore-dangle
     value: category._id,
+    logTypeId: category.logTypeId,
   }));
 
   searchMoreCategories.value = false;
+}
+
+/**
+ * Get categories
+ */
+async function getSearchSchemes() {
+  searchMoreSearchSchemes.value = true;
+  categoriesPagination.page += 1;
+
+  const { items: searchSchemeData } = await services.searchSchemas.find(categoriesPagination);
+
+  searchSchemeOptions.value = searchSchemeData.map((item: any) => ({
+    label: item.name,
+    value: item.fields,
+  }));
+
+  searchMoreSearchSchemes.value = false;
 }
 
 /**
@@ -685,11 +661,15 @@ async function getLogs() {
 
   if (!isEmpty(levels.value)) payload.levels = getValueBySelect(levels.value);
   if (!isEmpty(categories.value)) payload.categories = getValueBySelect(categories.value);
+  if (!isEmpty(advancedFilters.value)) payload.filters = advancedFilters.value;
 
-  // if (!isEmpty(advancedFilters.value)) payload.filters = getValueBySelect(categories.value);
   logsData.value = await services.logs.search(payload);
 }
 
+/**
+ * Get color by level
+ * @param level: string - Level name
+ */
 function getLevelColorByName(level: string) {
   const { color: currentLevelOptionColor } = LEVEL_OPTIONS
     .find((levelOption) => levelOption.value === level) || {};
@@ -697,68 +677,99 @@ function getLevelColorByName(level: string) {
   return currentLevelOptionColor;
 }
 
-function setAdvancedFilters() {
+/**
+ * Set advanced filter
+ */
+async function setAdvancedFilters() {
+  await getSearchSchemes();
   advancedFiltersDialog.value = true;
 }
 
+/**
+ * Close modal advanced filter
+ */
 function closeAdvancedFilters() {
   advancedFiltersDialog.value = false;
 }
 
+/**
+ * Change operation type by field type
+ * @param value: { label: string, value: string, bucketName: string } - Operation value
+ */
 function changeOperationByFieldType(value: any) {
-  const { bucketName = 'stringBucket' } = value;
+  const { bucketName = 'stringsBucket' } = value;
 
   operation.value = null;
-  operationOptions.value = ALL_OPERATIONS[bucketName] || [];
+  const retData = ALL_OPERATIONS[bucketName as keyof typeof ALL_OPERATIONS] || [];
+  operationOptions.value = retData;
 }
 
+/**
+ * Add new filter in array of filters
+ */
 function addNewAdvancedFilter() {
   const { value: fieldNameValue } = fieldName;
   const { value: operationValue } = operation;
 
   let payload = {};
 
-  if (fieldNameValue.bucketName === 'stringBucket') {
+  if (fieldNameValue?.bucketName === 'stringsBucket') {
     const { value: stringCompareValue } = stringCompare;
 
     payload = {
       field: fieldNameValue.value,
-      operation: operationValue.value,
+      operation: operationValue?.value,
       value: stringCompareValue,
       bucketName: 'string',
     };
   }
 
-  if (fieldNameValue.bucketName === 'numberBucket') {
-    const { value: rangeStartValue } = rangeStart;
-    const { value: rangeStartOperationValue } = rangeStartOperation;
-    const { value: rangeEndValue } = rangeEnd;
-    const { value: rangeEndOperationValue } = rangeEndOperation;
+  if (fieldNameValue?.bucketName === 'numbersBucket') {
+    const { value: operationValue } = operation.value;
 
-    payload = {
-      field: fieldNameValue.value,
-      operation: [rangeStartOperationValue.value, rangeEndOperationValue.value],
-      value: [rangeStartValue, rangeEndValue],
-      bucketName: 'number',
-    };
+    if (operationValue === 'range') {
+      const { value: rangeStartValue } = rangeStart;
+      const { value: rangeStartOperationValue } = rangeStartOperation;
+      const { value: rangeEndValue } = rangeEnd;
+      const { value: rangeEndOperationValue } = rangeEndOperation;
+
+      payload = {
+        bucketName: 'number',
+        operation: 'range',
+        field: fieldNameValue?.value,
+        value: {
+          [rangeStartOperationValue?.value]: Number(rangeStartValue),
+          [rangeEndOperationValue?.value]: Number(rangeEndValue),
+        },
+      };
+    } else if (operationValue === 'equal') {
+      payload = {
+        bucketName: 'number',
+        operation: 'equal',
+        field: fieldNameValue?.value,
+        value: Number(numberEqual.value),
+      };
+    }
   }
 
-  if (fieldNameValue.bucketName === 'booleanBucket') {
+  if (fieldNameValue?.bucketName === 'booleansBucket') {
     const { value: booleanCompareValue } = booleanCompare;
 
     payload = {
-      field: fieldNameValue.value,
-      operation: operationValue.value,
-      value: booleanCompareValue.value,
+      field: fieldNameValue?.value,
+      operation: operationValue?.value,
+      value: booleanCompareValue?.value,
       bucketName: 'boolean',
     };
   }
 
   advancedFilters.value.push(payload);
-
   resetAdvancedFiltersFields();
 }
 
+/**
+ * Filters reset
+ */
 function resetAdvancedFiltersFields() {
   // general
   fieldName.value = null;
@@ -777,59 +788,111 @@ function resetAdvancedFiltersFields() {
   booleanCompare.value = null;
 }
 
+/**
+ * Remove one filter by index array
+ * @param index: number - Array index number
+ */
 function removeAdvancedFilter(index: number) {
   advancedFilters.value.splice(index, 1);
 }
 
-function applyAdvancedFilter() {
-  //
-}
-
+/**
+ * Mount operation label
+ * @param filter: * @param value: { bucketName: string, operation: string }
+ * Bucket and operation value
+ */
 function mountOperation(filter: any) {
   const { bucketName, operation } = filter;
 
   const operationLabel = {
     string: () => {
       const { label: stringOperationLabel } = ALL_OPERATIONS
-        .stringBucket
+        .stringsBucket
         .find((stringOperation) => stringOperation.value === operation) || {};
       return stringOperationLabel;
     },
     number: () => {
-      const newLabels = operation.map((currentOperation: any) => {
-        const { label: numberOperationLabel } = numberOperations
-          .find((numberOperation) => numberOperation.value === currentOperation) || {};
-
-        return numberOperationLabel;
-      });
-
-      return newLabels.join(' - ');
+      const { label: numberOperationLabel } = ALL_OPERATIONS
+        .numbersBucket
+        .find((numberOperation) => numberOperation.value === operation) || {};
+      return numberOperationLabel;
     },
     boolean: () => {
       const { label: booleanOperationLabel } = ALL_OPERATIONS
-        .booleanBucket
+        .booleansBucket
         .find((booleanOperation) => booleanOperation.value === operation) || {};
       return booleanOperationLabel;
     },
   };
 
-  return operationLabel[bucketName]();
+  return operationLabel[bucketName as keyof typeof operationLabel]();
 }
 
+/**
+ * Mount operation value
+ * @param filter: * @param value: { bucketName: string, operation: string }
+ * Bucket and operation value
+ */
 function mountValue(filter: any) {
-  const { bucketName, value } = filter;
+  const { bucketName, value, operation } = filter;
 
-  const operationLabel = {
+  const operationValue = {
     string: () => value,
-    number: () => value.join(' - '),
+    number: () => {
+      if (operation === 'equal') return value;
+
+      // Range
+      const newLabels = Object.keys(value).map((key: string) => {
+        const currentValue = value[key];
+        const { label: numberOperationLabel } = NUMBER_OPERATIONS
+          .find((numberOperation) => numberOperation.value === key) || {};
+
+        return `${numberOperationLabel}: ${currentValue}`;
+      });
+
+      return newLabels.join('<br>');
+    },
     boolean: () => (value ? 'True' : 'False'),
   };
 
-  return operationLabel[bucketName]();
+  return operationValue[bucketName as keyof typeof operationValue]();
 }
 
+/**
+ * Format date
+ * @param date: Date - Date to format
+ * @param format: string - Format type
+ */
 function formatDate(date: Date, format: string) {
   return dayjs(date).format(format);
+}
+
+/**
+ * Mount advanced filters
+ * @param fields: ItemSearchScheme[] - Schema from to
+ */
+async function mountFieldsToAdvancedFilters(fields: ItemSearchScheme[]) {
+  return fields.reduce((mounted: any, fieldData: any) => {
+    const { type, to } = fieldData;
+    return [
+      ...mounted,
+      {
+        bucketName: type,
+        label: to,
+        value: to,
+      },
+    ];
+  }, []);
+}
+
+/**
+ * Mount fields to advanced filter
+ * @param event: any - Event
+ * @param type: string - Add ou remove element
+ */
+async function fieldsToAdvancedFilter(event: any) {
+  const { value: fields } = event;
+  fieldNameOptions.value = await mountFieldsToAdvancedFilters(fields);
 }
 </script>
 

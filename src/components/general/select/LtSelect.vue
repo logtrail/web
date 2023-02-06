@@ -1,5 +1,6 @@
 <template>
-  <q-select v-bind="componentDefaultProps">
+  <q-select
+    v-bind="componentDefaultProps">
     <template
       v-if="slots.default"
       v-slot:default>
