@@ -291,7 +291,7 @@
               <q-td colspan="100%">
                 <div class="text-left">
                   <p class="text-h6">Event details</p>
-                  <pre lang="js">{{ props.row.event }}</pre>
+                  <pre class="language-javascript"><code>{{ props.row.event }}</code></pre>
                 </div>
               </q-td>
             </q-tr>
@@ -542,6 +542,9 @@ export default {
 </script>
 
 <script setup lang="ts">
+import Prism from 'prismjs';
+import 'prismjs/components/prism-javascript';
+
 import dayjs from 'dayjs';
 import { QSelectOption } from 'quasar';
 import { isEmpty } from 'lodash';
@@ -623,6 +626,10 @@ const endDate = ref<string>(
 onMounted(async () => {
   await getLogs();
   await getCategories();
+
+  // window.Prism = window.Prism || {};
+  // window.Prism.manual = true;
+  Prism.highlightAll();
 });
 
 // ------- //
@@ -947,6 +954,12 @@ function getPartialFromEventValue(value: string) {
   const newText = JSON.stringify(value).substring(0, 40);
   return `${newText}...`;
 }
+
+// function eventFormatted(event: object) {
+//   const eventString = JSON.stringify(event);
+//   const html = Prism.highlight(eventString, Prism.languages.javascript, 'javascript');
+//   return html;
+// }
 </script>
 
 <style lang="scss">
@@ -1008,18 +1021,6 @@ code {
   box-decoration-break: clone;
   padding: .1rem .3rem .2rem;
   border-radius: .2rem;
-  font-family: monospace;
-}
-
-pre {
-  background: $grey-2;
-  color: $dark;
-  padding: .1rem .3rem .2rem;
-  border-radius: .2rem;
-  font-size: 15px;
-
-  line-height:1.6em;
-  page-break-inside: avoid;
   font-family: monospace;
 }
 </style>
