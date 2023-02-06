@@ -298,7 +298,6 @@
               </q-td>
             </q-tr>
           </template>
-
         </q-table>
 
         <div class="row col-12 justify-center items-center q-col-gutter-sm q-mt-md">
@@ -632,8 +631,6 @@ onMounted(async () => {
   await getLogs();
   await getCategories();
 
-  // window.Prism = window.Prism || {};
-  // window.Prism.manual = true;
   Prism.highlightAll();
 });
 

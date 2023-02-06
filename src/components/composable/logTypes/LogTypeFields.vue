@@ -30,7 +30,8 @@
             v-model="repeatableField.from"
             v-bind="props.fieldProps"
             class="col-9 q-pr-xs"
-            label="Field from">
+            label="Field from"
+            :rules="defaultRule">
           </q-input>
 
           <q-select
@@ -38,7 +39,8 @@
             v-bind="props.fieldProps"
             class="col-3 q-pl-xs"
             label="Type"
-            :options="['String', 'Number', '...']" />
+            :options="fromTypes"
+            :rules="defaultRule" />
         </div>
 
         <div class="col-12 row">
@@ -46,6 +48,7 @@
             v-model="repeatableField.to"
             v-bind="props.fieldProps"
             class="col"
+            :rules="defaultRule"
             label="Field to" />
         </div>
 
@@ -55,6 +58,7 @@
             v-bind="props.fieldProps"
             class="col"
             label="Value type"
+            :rules="defaultRule"
             :options="typesFromLogType" />
         </div>
       </div>
@@ -81,7 +85,7 @@ export default {
 </script>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
 
 import useLogTypePageStore from 'src/stores/pages/logTypesPage';
@@ -98,27 +102,30 @@ const props = defineProps({
 
 const typesFromLogType = [
   { label: 'String', value: 'stringsBucket' },
-  { label: 'Number', value: 'numberBucket' },
-  { label: 'Boolean', value: 'booleanBucket' },
-  { label: 'Date', value: 'dateBucket' },
+  { label: 'Number', value: 'numbersBucket' },
+  { label: 'Boolean', value: 'booleansBucket' },
+  // { label: 'Date', value: 'dateBucket' },
   // { label: 'GeoPoints', value: 'geopointsBucket' },
 ];
 
-const transformationTypes = [
-  { label: '', value: '' },
+const fromTypes = [
+  { label: 'String', value: 'string' },
+  { label: 'Number', value: 'number' },
+  { label: 'Boolean', value: 'boolean' },
 ];
 
-const repeatableFields = ref([
-  {
-    from: '',
-    to: '',
-    type: null,
-    fromType: '',
-  },
-]);
+const repeatableFields = computed(() => logTypePageStore.newLogType.fields);
+
+const defaultRule = computed(() => ([
+  (value) => !!value || 'Field is required',
+]));
+
+onMounted(() => {
+  addLogTypeField();
+});
 
 function addLogTypeField() {
-  repeatableFields.value.push({
+  logTypePageStore.newLogType.fields.push({
     from: '',
     to: '',
     type: null,
@@ -136,10 +143,10 @@ function removeLogTypeField(index) {
 
   $q.dialog(dialogProps)
     .onOk(async () => {
-      const repeatableUpdated = repeatableFields.value
+      const repeatableUpdated = logTypePageStore.newLogType.fields
         .filter((field, fieldIndex) => fieldIndex !== index);
 
-      repeatableFields.value = [...repeatableUpdated];
+      logTypePageStore.newLogType.fields = [...repeatableUpdated];
     })
     .onCancel(() => {
       // nothing here

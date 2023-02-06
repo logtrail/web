@@ -20,7 +20,7 @@
           v-model:pagination="pagination"
           hide-pagination
           class="col-12"
-          row-key="name"
+          row-key="_id"
           :columns="columns"
           :filter="filter"
           :rows="logTypePageStore.logTypesList">
@@ -35,6 +35,86 @@
                 <q-icon name="search" />
               </template>
             </q-input>
+          </template>
+
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th auto-width />
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props">
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
+
+          <template v-slot:body="props">
+            <q-tr
+              :key="props.row._id"
+              :props="props">
+              <q-td auto-width>
+                <q-btn
+                  dense
+                  round
+                  unelevated
+                  color="info"
+                  size="sm"
+                  :icon="props.expand ? 'remove' : 'add'"
+                  @click.stop="props.expand = !props.expand" />
+              </q-td>
+              <q-td
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props">
+                <span v-if="col.name === 'name'">{{ col.value }}</span>
+                <span v-if="col.name === 'fields'">{{ col.value }}</span>
+                <span v-if="col.name === 'created'">
+                  {{ formatDate(col.value, 'YYYY/MM/DD HH:mm:ss') }}
+                </span>
+                <div
+                  v-if="col.name === 'actions'"
+                  class="row justify-end">
+                  <q-btn
+                    dense
+                    round
+                    unelevated
+                    class="q-mr-xs"
+                    color="blue"
+                    @click="editLogType(props.row._id)">
+                    <q-icon
+                      name="edit"
+                      color="white"
+                      size="18px" />
+                  </q-btn>
+
+                  <q-btn
+                    dense
+                    round
+                    unelevated
+                    class="q-ml-xs"
+                    color="red-5"
+                    @click="removeLogType(props.row._id)">
+                    <q-icon
+                      name="delete"
+                      color="white"
+                      size="18px" />
+                  </q-btn>
+                </div>
+              </q-td>
+            </q-tr>
+
+            <q-tr
+              :key="props.row._id"
+              v-show="props.expand"
+              :props="props">
+              <q-td colspan="100%">
+                <div class="text-left">
+                  <p class="text-h6">LogType</p>
+                  <pre class="language-javascript"><code>{{ props.row.fields }}</code></pre>
+                </div>
+              </q-td>
+            </q-tr>
           </template>
 
           <template v-slot:body-cell-actions="props">
@@ -109,9 +189,14 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism.min.css';
+import 'prismjs/components/prism-javascript';
+
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
+import dayjs from 'dayjs';
 
 import useLogTypesPageStore from 'stores/pages/logTypesPage';
 
@@ -123,7 +208,7 @@ const logTypePageStore = useLogTypesPageStore();
 const columns: ColumnTypes[] = [
   {
     name: 'name',
-    label: 'Name',
+    label: 'LogType',
     field: 'name',
     align: 'left',
   },
@@ -132,7 +217,13 @@ const columns: ColumnTypes[] = [
     label: 'Fields',
     field: 'fields',
     align: 'left',
-    format: (val, row) => `${row.length} fields`,
+    format: (val) => `${val.length} field${val.length > 1 ? 's' : ''}`,
+  },
+  {
+    name: 'created',
+    align: 'left',
+    label: 'Created At',
+    field: 'created',
   },
   {
     name: 'actions',
@@ -155,6 +246,10 @@ const pagination = ref({
 const pagesNumber = computed(() => {
   const { logTypesList = [] } = logTypePageStore;
   return Math.ceil(logTypesList.length / pagination.value.rowsPerPage);
+});
+
+onMounted(() => {
+  Prism.highlightAll();
 });
 
 function addLogType() {
@@ -196,6 +291,15 @@ function removeLogType(logTypeId: string): void {
     .onCancel(() => {
       // nothing here
     });
+}
+
+/**
+ * Format date
+ * @param date: Date - Date to format
+ * @param format: string - Format type
+ */
+function formatDate(date: Date, format: string) {
+  return dayjs(date).format(format);
 }
 </script>
 

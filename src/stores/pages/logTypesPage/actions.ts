@@ -18,7 +18,10 @@ export const useActions = defineStore('logTypes.actions', () => {
   function clearNewLogType() {
     setAddingLogType(false);
     setEditingLogType(false);
-    state.newLogType = {};
+    state.newLogType = {
+      name: '',
+      fields: [],
+    };
   }
 
   async function createLogType(): Promise<boolean> {
@@ -27,6 +30,7 @@ export const useActions = defineStore('logTypes.actions', () => {
     const modified = '';
 
     const { newLogType } = state;
+    debugger;
     try {
       // call API to add logType on DB
       state.logTypesList.push({
