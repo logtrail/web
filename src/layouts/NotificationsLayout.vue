@@ -111,13 +111,11 @@ const menus = [
 
 const currentRoute = computed(() => {
   const { fullPath = '' } = $route;
-
   return fullPath;
 });
 
 const drawerRight = computed(() => {
   const { addingNotification, editingNotification } = notificationPageStore;
-
   return addingNotification || editingNotification;
 });
 
@@ -127,18 +125,6 @@ function toggleLeftDrawer() {
 }
 
 onMounted(() => {
-
-  // const pageContainerRef = document.querySelector('.q-page-container');
-  // pageContainerRef?.addEventListener('click', ():void => {
-  //   console.log('click on page container');
-  //   // close right drawer and clear store
-  // });
-
-  // const drawerLeftRef = document.querySelector('.q-drawer--left');
-  // drawerLeftRef?.addEventListener('click', ():void => {
-  //   console.log('click on drawer left');
-  //   // close right drawer and clear store
-  // });
 });
 
 </script>

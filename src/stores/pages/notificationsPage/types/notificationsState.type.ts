@@ -1,4 +1,4 @@
-import Notification from './notification.type';
+import { Notification } from 'src/shared/interfaces';
 
 export type NotificationsState = {
   addingNotification: boolean;

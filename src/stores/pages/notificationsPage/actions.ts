@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { uid } from 'quasar';
+import { services } from 'src/services';
 
 import { useState } from './state';
 import Notification from './types/notification.type';
@@ -26,20 +26,15 @@ export const useActions = defineStore('notifications.actions', () => {
     };
   }
 
-  async function createNotification(): Promise<boolean> {
-    const id = uid();
-    const created = '';
-    const modified = '';
+  function setNotifications(notificationsData: any[]) {
+    state.notificationsList = notificationsData;
+  }
 
+  async function createNotification(): Promise<boolean> {
     const { newNotification } = state;
     try {
-      // call API to add notification on DB
-      state.notificationsList.push({
-        ...newNotification,
-        _id: id,
-        created,
-        modified,
-      });
+      const notificationAdded = await services.notifications.create(newNotification);
+      state.notificationsList.push(notificationAdded);
 
       clearNewNotification();
       return true;
@@ -78,6 +73,7 @@ export const useActions = defineStore('notifications.actions', () => {
       // call API to update notification on DB
       const { notificationsList = [] } = state;
 
+      debugger;
       const notificationIndexToBeUpdated = notificationsList
         .findIndex((notification: Notification): boolean => {
           const { _id: notificationIndex } = notification;
@@ -85,6 +81,9 @@ export const useActions = defineStore('notifications.actions', () => {
         });
 
       if (notificationIndexToBeUpdated !== -1) {
+        if (notificationId != null) {
+          await services.notifications.updateById(notificationId, newNotification);
+        }
         state.notificationsList[notificationIndexToBeUpdated] = {
           ...state.notificationsList[notificationIndexToBeUpdated],
           ...newNotification,
@@ -94,7 +93,7 @@ export const useActions = defineStore('notifications.actions', () => {
 
       return true;
     } catch (ex) {
-      // console.error(ex);
+      console.error(ex);
       return false;
     }
   }
@@ -128,6 +127,7 @@ export const useActions = defineStore('notifications.actions', () => {
   return {
     clearData,
     clearNewNotification,
+    setNotifications,
     setAddingNotification,
     setEditingNotification,
 

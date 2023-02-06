@@ -24,18 +24,6 @@
           :columns="columns"
           :filter="filter"
           :rows="notificationPageStore.notificationsList">
-          <template v-slot:top-right>
-            <q-input
-              v-model="filter"
-              dense
-              outlined
-              debounce="300"
-              placeholder="Search">
-              <template v-slot:append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </template>
 
           <template v-slot:body-cell-enable="props">
             <q-td :props="props">
@@ -127,10 +115,6 @@ import { services } from 'src/services';
 import useNotificationPageStore from 'stores/pages/notificationsPage';
 import { ColumnTypes } from './types';
 
-onMounted(async () => {
-  // const nada = await services.notifications.find();
-});
-
 const $q = useQuasar();
 const notificationPageStore = useNotificationPageStore();
 
@@ -141,16 +125,18 @@ const addNotification = () => {
 };
 
 const pagination = ref({
-  sortBy: 'desc',
-  descending: false,
   page: 1,
-  rowsPerPage: 5,
-  // rowsNumber: xx if getting data from a server
+  perPage: 5,
 });
 
 const pagesNumber = computed(() => {
   const { notificationsList = [] } = notificationPageStore;
   return Math.ceil(notificationsList.length / pagination.value.rowsPerPage);
+});
+
+onMounted(async () => {
+  const { items: notificationList } = await services.notifications.find(pagination.value);
+  notificationPageStore.setNotifications(notificationList);
 });
 
 const columns: ColumnTypes[] = [
@@ -220,6 +206,7 @@ function removeNotification(notificationId: string): void {
 
   $q.dialog(dialogProps)
     .onOk(async () => {
+      await services.notifications.deleteById(notificationId);
       await notificationPageStore.deleteNotification(notificationId);
     })
     .onCancel(() => {
