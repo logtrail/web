@@ -174,6 +174,7 @@
               <q-chip dense>
                 {{ categories[0].label }}
               </q-chip>
+
               <q-chip
                 v-if="categories.length > 1"
                 dense>
@@ -221,34 +222,81 @@
 
     <template v-if="logsData.length">
       <div class="row full-width full-height">
+
+        <!-- <div class="row col-12">
+          <div
+            v-for="log in logsData"
+            class="row full-width"
+            :key="log._id">
+            <pre>{{ log }}</pre>
+          </div>
+        </div> -->
+
         <q-table
           hide-pagination
           class="col-12"
-          row-key="name"
+          row-key="_id"
           :columns="COLUMNS"
-          :rows="logsData"
-          :pagination="{ rowsPerPage: 10 }">
-          <template v-slot:body-cell-event="props">
-            <q-td :props="props">
-              <pre>
-                {{ JSON.stringify(props.row.event).substring(0, 40) }}...
-              </pre>
-            </q-td>
+          :pagination="{ rowsPerPage: 10 }"
+          :rows="logsData">
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th auto-width />
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props">
+                {{ col.label }}
+              </q-th>
+            </q-tr>
           </template>
 
-          <template v-slot:body-cell-level="props">
-            <q-td :props="props">
-              <q-chip :color="getLevelColorByName(props.row.level) || 'grey-4'">
-                {{ props.row.level }}
-              </q-chip>
-            </q-td>
+          <template v-slot:body="props">
+            <q-tr
+              :key="props.row._id"
+              :props="props">
+              <q-td auto-width>
+                <q-btn
+                  dense
+                  round
+                  unelevated
+                  color="info"
+                  size="sm"
+                  :icon="props.expand ? 'remove' : 'add'"
+                  @click.stop="props.expand = !props.expand" />
+              </q-td>
+              <q-td
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props">
+                <code v-if="col.name === 'event'">{{ getPartialFromEventValue(col.value) }}</code>
+                <q-chip
+                  v-if="col.name === 'level'"
+                  :color="getLevelColorByName(col.value) || 'grey-4'">
+                  {{ col.value }}
+                </q-chip>
+                <span v-if="col.name === 'created'">
+                  {{ formatDate(col.value, 'YYYY/MM/DD HH:mm:ss') }}
+                </span>
+                <span v-if="col.name === 'category'">
+                  {{ col.value }}
+                </span>
+              </q-td>
+            </q-tr>
+
+            <q-tr
+              :key="props.row._id"
+              v-show="props.expand"
+              :props="props">
+              <q-td colspan="100%">
+                <div class="text-left">
+                  <p class="text-h6">Event details</p>
+                  <pre lang="js">{{ props.row.event }}</pre>
+                </div>
+              </q-td>
+            </q-tr>
           </template>
 
-          <template v-slot:body-cell-created="props">
-            <q-td :props="props">
-              {{ formatDate(props.row.created, 'YYYY/MM/DD HH:mm:ss') }}
-            </q-td>
-          </template>
         </q-table>
 
         <div class="row col-12 justify-center items-center q-col-gutter-sm q-mt-md">
@@ -305,7 +353,7 @@
         </div>
 
         <div class="row full-width advanced-filters-card_content q-col-gutter-sm">
-          <p class="col-12 text-h6">Add new Filter</p>
+          <p class="col-12 text-h6 q-mb-xs">Add new Filter</p>
           <div class="row col-6">
             <LtSelect
               v-model="searchScheme"
@@ -452,7 +500,7 @@
                     no-caps
                     unelevated
                     round
-                    color="red"
+                    color="red-5"
                     class="content-start"
                     icon="delete"
                     @click="removeAdvancedFilter(index)" />
@@ -894,6 +942,11 @@ async function fieldsToAdvancedFilter(event: any) {
   const { value: fields } = event;
   fieldNameOptions.value = await mountFieldsToAdvancedFilters(fields);
 }
+
+function getPartialFromEventValue(value: string) {
+  const newText = JSON.stringify(value).substring(0, 40);
+  return `${newText}...`;
+}
 </script>
 
 <style lang="scss">
@@ -946,5 +999,27 @@ $used-area: $header-height + $padding-y + ($title-height * 2);
 
 .logs-simple-filter {
   margin-bottom: 32px;
+}
+
+code {
+  background: $grey-2;
+  color: $dark;
+  word-wrap: break-word;
+  box-decoration-break: clone;
+  padding: .1rem .3rem .2rem;
+  border-radius: .2rem;
+  font-family: monospace;
+}
+
+pre {
+  background: $grey-2;
+  color: $dark;
+  padding: .1rem .3rem .2rem;
+  border-radius: .2rem;
+  font-size: 15px;
+
+  line-height:1.6em;
+  page-break-inside: avoid;
+  font-family: monospace;
 }
 </style>

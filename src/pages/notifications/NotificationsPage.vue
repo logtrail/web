@@ -67,10 +67,10 @@
                   round
                   unelevated
                   class="q-ml-xs"
-                  color="red"
+                  color="red-5"
                   @click="removeNotification(props.row._id)">
                   <q-icon
-                    name="delete_forever"
+                    name="delete"
                     color="white"
                     size="18px" />
                 </q-btn>

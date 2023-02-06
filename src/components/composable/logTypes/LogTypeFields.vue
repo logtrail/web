@@ -18,7 +18,7 @@
               no-caps
               unelevated
               round
-              color="red"
+              color="red-5"
               class="content-start"
               icon="delete"
               @click="removeLogTypeField(index)" />
