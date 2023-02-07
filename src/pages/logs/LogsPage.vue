@@ -222,16 +222,6 @@
 
     <template v-if="logsData.length">
       <div class="row full-width full-height">
-
-        <!-- <div class="row col-12">
-          <div
-            v-for="log in logsData"
-            class="row full-width"
-            :key="log._id">
-            <pre>{{ log }}</pre>
-          </div>
-        </div> -->
-
         <q-table
           hide-pagination
           class="col-12"
@@ -267,7 +257,6 @@
               </q-td>
               <q-td
                 v-for="col in props.cols"
-                class="cursor-pointer"
                 :key="col.name"
                 :props="props"
                 @click.stop="props.expand = !props.expand">
@@ -299,6 +288,7 @@
               </q-td>
             </q-tr>
           </template>
+
         </q-table>
 
         <div class="row col-12 justify-center items-center q-col-gutter-sm q-mt-md">
@@ -312,6 +302,7 @@
               icon="arrow_back"
               label="Previous"
               @click.stop="previousPage" />
+            {{ logsData[0]?._id }}
           </div>
 
           <div class="row col-shrink">
@@ -323,6 +314,7 @@
               icon-right="arrow_forward"
               label="Next"
               @click.stop="nextPage" />
+              {{ logsData[logsData.length - 1]?._id }}
           </div>
         </div>
       </div>
@@ -552,7 +544,7 @@ import 'prismjs/components/prism-javascript';
 import dayjs from 'dayjs';
 import { QSelectOption, useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
-import { onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 
 import { services } from 'src/services';
 
@@ -631,8 +623,6 @@ const endDate = ref<string>(
 onMounted(async () => {
   await getLogs();
   await getCategories();
-
-  Prism.highlightAll();
 });
 
 // ------- //
@@ -647,9 +637,17 @@ async function previousPage() {
     start: dayjs(startDate.value).toISOString(),
     end: dayjs(endDate.value).toISOString(),
   };
-  const lastRegister = logsData.value.at(-1);
+  const lastRegister = logsData.value[0];
   const previousCursor = lastRegister._id;
-  logsData.value = await services.logs.search({ created, previousCursor, limit: 10 });
+  logsData.value = await services.logs.search({
+    created,
+    previousCursor,
+    limit: 10,
+    filters: advancedFilters.value,
+  });
+
+  await nextTick();
+  Prism.highlightAll();
 }
 
 /**
@@ -660,9 +658,17 @@ async function nextPage() {
     start: dayjs(startDate.value).toISOString(),
     end: dayjs(endDate.value).toISOString(),
   };
-  const [firstRegister] = logsData.value;
-  const nextCursor = firstRegister._id;
-  logsData.value = await services.logs.search({ created, nextCursor, limit: 10 });
+  const lastRegister = logsData.value[logsData.value.length - 1];
+  const nextCursor = lastRegister._id;
+  logsData.value = await services.logs.search({
+    created,
+    nextCursor,
+    limit: 10,
+    filters: advancedFilters.value,
+  });
+
+  await nextTick();
+  Prism.highlightAll();
 }
 
 /**
@@ -722,6 +728,9 @@ async function getLogs() {
   if (!isEmpty(advancedFilters.value)) payload.filters = advancedFilters.value;
 
   logsData.value = await services.logs.search(payload);
+
+  await nextTick();
+  Prism.highlightAll();
 }
 
 /**
@@ -954,12 +963,11 @@ async function fieldsToAdvancedFilter(event: any) {
 }
 
 function getPartialFromEventValue(value: string) {
-  let maxSize = 90;
+  let maxSize = 80;
 
   if ($q.screen.lt.sm) maxSize = 35;
   if ($q.screen.lt.md) maxSize = 45;
   if ($q.screen.lt.lg) maxSize = 55;
-  if ($q.screen.lt.xl) maxSize = 85;
 
   const newText = JSON.stringify(value).substring(0, maxSize);
   return `${newText}...`;

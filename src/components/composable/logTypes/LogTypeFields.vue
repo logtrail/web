@@ -136,7 +136,7 @@ function addLogTypeField() {
 function removeLogTypeField(index) {
   const dialogProps = {
     title: 'Confirm',
-    message: 'Would you like to delete this logType?',
+    message: 'Would you like to delete this search sheme?',
     cancel: true,
     persistent: true,
   };

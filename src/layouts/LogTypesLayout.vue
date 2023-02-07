@@ -50,7 +50,7 @@
 
 <script lang="ts">
 export default {
-  name: 'LogTypesLayout',
+  name: 'SearchSchemeLayout',
 };
 </script>
 
@@ -92,7 +92,7 @@ const menus = [
   {
     id: 'logtypes',
     icon: 'storage', // 'data_object',
-    label: 'Logtypes',
+    label: 'Search scheme',
     route: '/logtypes',
   },
   {

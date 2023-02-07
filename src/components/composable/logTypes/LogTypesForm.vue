@@ -1,7 +1,7 @@
 <template>
   <div class="row full-width q-pa-md">
     <div class="row col-12 justify-between items-center q-mb-xl">
-      <span class="text-h6 col-grow">{{ logTypeTitle }}</span>
+      <span class="text-h6 col-grow">{{ searchSchemeTitle }}</span>
       <div class="col-shrink">
         <q-btn
           dense
@@ -25,7 +25,7 @@
           v-model="logTypePageStore.newLogType.name"
           v-bind="fieldDefaultProps"
           class="col"
-          label="LogType name"
+          label="Search scheme name"
           :rules="defaultRule" />
       </div>
 
@@ -81,11 +81,11 @@ const fieldDefaultProps = {
 const currentSelection = ref('');
 const addLogTypeForm = ref(null);
 
-const logTypeTitle = computed(() => {
+const searchSchemeTitle = computed(() => {
   const { addingLogType, editingLogType } = logTypePageStore;
 
-  if (addingLogType) return 'New LogType';
-  if (editingLogType) return 'Edit LogType';
+  if (addingLogType) return 'New Search Scheme';
+  if (editingLogType) return 'Edit Search Scheme';
 
   return '';
 });
@@ -168,7 +168,7 @@ async function saveLogType() {
   if (!fields.length) {
     $q.notify({
       type: 'negative',
-      message: 'You need to add at least one logtype!',
+      message: 'You need to add at least one search scheme!',
       timeout: 5000,
     });
     return;

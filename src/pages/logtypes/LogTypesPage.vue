@@ -1,7 +1,7 @@
 <template>
   <q-page class="logType-page full-height">
     <div class="row full-width content-center items-center q-mb-xl">
-      <p class="text-h3 col-shrink q-mr-md q-mb-none">LogTypes</p>
+      <p class="text-h3 col-shrink q-mr-md q-mb-none">Search scheme</p>
       <q-btn
         v-if="logTypePageStore.logTypesList.length"
         dense
@@ -9,7 +9,7 @@
         unelevated
         class="col-shrink btn-primary bg-primary text-white"
         icon="add"
-        label="New LogType"
+        label="New Search Scheme"
         padding="xs sm"
         @click="addLogType()" />
     </div>
@@ -134,7 +134,7 @@
           <div class="col-12 text-center">
             <img src="img/empty-logType.svg" width="250" height="250" alt="">
             <p class="q-mt-md text-weight-bold">
-              Wait! You don't have logTypes yet! Try to add new logType.
+              Wait! You don't have search secheme yet! Try to add new search scheme.
             </p>
             <q-btn
               dense
@@ -142,7 +142,7 @@
               unelevated
               class="col-shrink btn-primary bg-primary text-weight-bold text-white"
               icon="add"
-              label="New logType"
+              label="New search scheme"
               padding="xs sm"
               @click="addLogType()" />
           </div>
@@ -184,7 +184,7 @@ const logTypePageStore = useLogTypesPageStore();
 const columns: ColumnTypes[] = [
   {
     name: 'name',
-    label: 'LogType',
+    label: 'Search scheme',
     field: 'name',
     align: 'left',
   },

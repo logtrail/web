@@ -92,7 +92,7 @@ const menus = [
   {
     id: 'logtypes',
     icon: 'storage', // 'data_object',
-    label: 'Logtypes',
+    label: 'Search scheme',
     route: '/logtypes',
   },
   {
