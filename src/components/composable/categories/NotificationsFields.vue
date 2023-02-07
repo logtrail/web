@@ -7,7 +7,7 @@
       <div class="notification-fields row col-12 q-col-gutter-y-md">
         <div class="row col-12 justify-between items-center">
           <span class="col-grow text-weight-bold">
-            Field {{ index + 1 }}
+            Notification {{ index + 1 }}
           </span>
 
           <div
@@ -32,7 +32,7 @@
             emit-value
             map-options
             class="col"
-            label="Type"
+            label="Notification type"
             :options="props.notificationOptions"
             :rules="defaultRule" />
         </div>
@@ -42,7 +42,7 @@
             v-model="repeatableField.destination"
             v-bind="props.fieldProps"
             class="col"
-            :label="getAccountLabel(repeatableField)"
+            label="Destination"
             :rules="defaultRule" />
         </div>
       </div>
@@ -94,19 +94,6 @@ const repeatableFields = computed(() => categoriesPageStore.newCategory.notifica
 const defaultRule = computed(() => ([
   (value: any) => !!value || 'Field is required',
 ]));
-
-function getAccountLabel(repeatableField: any) {
-  const { notificationType } = repeatableField;
-
-  const notificationLabelByType: any = {
-    email: 'E-mail',
-    slack: 'Slack account',
-    discord: 'Discord Account',
-    teams: 'Teams account',
-  };
-
-  return notificationLabelByType[notificationType] || 'Conta';
-}
 
 function addNotificationField() {
   categoriesPageStore.newCategory.notifications.push({
