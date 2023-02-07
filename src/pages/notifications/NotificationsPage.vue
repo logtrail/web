@@ -7,7 +7,7 @@
         dense
         no-caps
         unelevated
-        class="col-shrink btn-primary bg-primary text-secondary"
+        class="col-shrink btn-primary bg-primary"
         icon="add"
         label="New notification"
         padding="xs sm"
@@ -87,7 +87,7 @@
               dense
               no-caps
               unelevated
-              class="col-shrink btn-primary bg-primary text-secondary text-weight-bold"
+              class="col-shrink btn-primary bg-primary text-weight-bold"
               icon="add"
               label="New notification"
               padding="xs sm"
