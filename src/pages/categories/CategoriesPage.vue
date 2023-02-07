@@ -20,7 +20,7 @@
           v-model:pagination="pagination"
           hide-pagination
           class="col-12"
-          row-key="name"
+          row-key="_id"
           :columns="columns"
           :filter="filter"
           :rows="categoryPageStore.categoriesList">
@@ -37,36 +37,86 @@
             </q-input>
           </template>
 
-          <template v-slot:body-cell-actions="props">
-            <q-td :props="props">
-              <div class="row justify-end">
-                <q-btn
-                  dense
-                  round
-                  unelevated
-                  class="q-mr-xs"
-                  color="blue"
-                  @click="editCategory(props.row._id)">
-                  <q-icon
-                    name="edit"
-                    color="white"
-                    size="18px" />
-                </q-btn>
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th auto-width />
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props">
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
 
+          <template v-slot:body="props">
+            <q-tr
+              :key="props.row._id"
+              :props="props">
+              <q-td auto-width>
                 <q-btn
                   dense
                   round
                   unelevated
-                  class="q-ml-xs"
-                  color="red-5"
-                  @click="removeCategory(props.row._id)">
-                  <q-icon
-                    name="delete"
-                    color="white"
-                    size="18px" />
-                </q-btn>
-              </div>
-            </q-td>
+                  color="info"
+                  size="sm"
+                  :icon="props.expand ? 'remove' : 'add'"
+                  @click.stop="props.expand = !props.expand" />
+              </q-td>
+              <q-td
+                v-for="col in props.cols"
+                class="cursor-pointer"
+                :key="col.name"
+                :props="props"
+                @click.stop="props.expand = !props.expand">
+                <span v-if="col.name === 'name'">{{ col.value }}</span>
+                <span v-if="col.name === 'fields'">{{ col.value }}</span>
+                <span v-if="col.name === 'created'">
+                  {{ formatDate(col.value, 'YYYY/MM/DD HH:mm:ss') }}
+                </span>
+                <div
+                  v-if="col.name === 'actions'"
+                  class="row justify-end">
+                  <q-btn
+                    dense
+                    round
+                    unelevated
+                    class="q-mr-xs"
+                    color="blue"
+                    @click.stop="editCategory(props.row._id)">
+                    <q-icon
+                      name="edit"
+                      color="white"
+                      size="18px" />
+                  </q-btn>
+
+                  <q-btn
+                    dense
+                    round
+                    unelevated
+                    class="q-ml-xs"
+                    color="red-5"
+                    @click.stop="removeCategory(props.row._id)">
+                    <q-icon
+                      name="delete"
+                      color="white"
+                      size="18px" />
+                  </q-btn>
+                </div>
+              </q-td>
+            </q-tr>
+
+            <q-tr
+              :key="props.row._id"
+              v-show="props.expand"
+              :props="props">
+              <q-td colspan="100%">
+                <div class="text-left">
+                  <p class="text-h6">Notifications</p>
+                  <pre class="language-javascript"><code>{{ props.row.fields }}</code></pre>
+                </div>
+              </q-td>
+            </q-tr>
           </template>
         </q-table>
 
@@ -109,7 +159,18 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism.min.css';
+import 'prismjs/components/prism-javascript';
+
+import dayjs from 'dayjs';
+import {
+  ref,
+  computed,
+  watch,
+  nextTick,
+  onMounted,
+} from 'vue';
 import { useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
 
@@ -168,6 +229,15 @@ const pagesNumber = computed(() => {
   return Math.ceil(categoriesList.length / pagination.value.rowsPerPage);
 });
 
+watch(categoryPageStore.categoriesList, async () => {
+  await nextTick();
+  Prism.highlightAll();
+});
+
+onMounted(() => {
+  Prism.highlightAll();
+});
+
 function addCategory() {
   categoryPageStore.setAddingCategory(true);
 }
@@ -210,6 +280,15 @@ function removeCategory(categoryId: string): void {
     .onCancel(() => {
       // nothing here
     });
+}
+
+/**
+ * Format date
+ * @param date: Date - Date to format
+ * @param format: string - Format type
+ */
+function formatDate(date: Date, format: string) {
+  return dayjs(date).format(format);
 }
 </script>
 

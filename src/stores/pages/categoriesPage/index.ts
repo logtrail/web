@@ -5,7 +5,7 @@ import { useState } from './state';
 import { useActions } from './actions';
 import { useGetters } from './getters';
 
-export default defineStore('CategoryPage', () => ({
+export default defineStore('categoriesPage', () => ({
   ...extractStore(useState()),
   ...extractStore(useGetters()),
   ...extractStore(useActions()),

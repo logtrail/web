@@ -13,7 +13,12 @@ export const useState = defineStore({
       name: '',
       level: '',
       logType: '',
-      notifications: [],
+      notifications: [
+        {
+          notificationId: '',
+          destination: '',
+        },
+      ],
     },
     categoriesList: [],
   }),

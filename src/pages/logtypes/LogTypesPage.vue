@@ -118,38 +118,6 @@
               </q-td>
             </q-tr>
           </template>
-
-          <template v-slot:body-cell-actions="props">
-            <q-td :props="props">
-              <div class="row justify-end">
-                <q-btn
-                  dense
-                  round
-                  unelevated
-                  class="q-mr-xs"
-                  color="blue"
-                  @click="editLogType(props.row._id)">
-                  <q-icon
-                    name="edit"
-                    color="white"
-                    size="18px" />
-                </q-btn>
-
-                <q-btn
-                  dense
-                  round
-                  unelevated
-                  class="q-ml-xs"
-                  color="red-5"
-                  @click="removeLogType(props.row._id)">
-                  <q-icon
-                    name="delete"
-                    color="white"
-                    size="18px" />
-                </q-btn>
-              </div>
-            </q-td>
-          </template>
         </q-table>
 
         <div class="row justify-center q-mt-md full-width">
