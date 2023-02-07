@@ -20,7 +20,13 @@ export const useActions = defineStore('logTypes.actions', () => {
     setEditingLogType(false);
     state.newLogType = {
       name: '',
-      fields: [],
+      fields: [
+        {
+          from: '',
+          to: '',
+          type: '',
+        },
+      ],
     };
   }
 
@@ -30,7 +36,6 @@ export const useActions = defineStore('logTypes.actions', () => {
     const modified = '';
 
     const { newLogType } = state;
-    debugger;
     try {
       // call API to add logType on DB
       state.logTypesList.push({

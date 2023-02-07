@@ -65,8 +65,10 @@
               </q-td>
               <q-td
                 v-for="col in props.cols"
+                class="cursor-pointer"
                 :key="col.name"
-                :props="props">
+                :props="props"
+                @click.stop="props.expand = !props.expand">
                 <span v-if="col.name === 'name'">{{ col.value }}</span>
                 <span v-if="col.name === 'fields'">{{ col.value }}</span>
                 <span v-if="col.name === 'created'">
@@ -81,7 +83,7 @@
                     unelevated
                     class="q-mr-xs"
                     color="blue"
-                    @click="editLogType(props.row._id)">
+                    @click.stop="editLogType(props.row._id)">
                     <q-icon
                       name="edit"
                       color="white"
@@ -94,7 +96,7 @@
                     unelevated
                     class="q-ml-xs"
                     color="red-5"
-                    @click="removeLogType(props.row._id)">
+                    @click.stop="removeLogType(props.row._id)">
                     <q-icon
                       name="delete"
                       color="white"
@@ -193,7 +195,13 @@ import Prism from 'prismjs';
 import 'prismjs/themes/prism.min.css';
 import 'prismjs/components/prism-javascript';
 
-import { ref, computed, onMounted } from 'vue';
+import {
+  ref,
+  computed,
+  watch,
+  nextTick,
+  onMounted,
+} from 'vue';
 import { useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
 import dayjs from 'dayjs';
@@ -246,6 +254,11 @@ const pagination = ref({
 const pagesNumber = computed(() => {
   const { logTypesList = [] } = logTypePageStore;
   return Math.ceil(logTypesList.length / pagination.value.rowsPerPage);
+});
+
+watch(logTypePageStore.logTypesList, async () => {
+  await nextTick();
+  Prism.highlightAll();
 });
 
 onMounted(() => {

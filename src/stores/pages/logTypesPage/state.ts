@@ -11,7 +11,13 @@ export const useState = defineStore({
 
     newLogType: {
       name: '',
-      fields: [],
+      fields: [
+        {
+          from: '',
+          to: '',
+          type: '',
+        },
+      ],
     },
     logTypesList: [],
   }),

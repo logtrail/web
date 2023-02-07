@@ -267,6 +267,7 @@
               </q-td>
               <q-td
                 v-for="col in props.cols"
+                class="cursor-pointer"
                 :key="col.name"
                 :props="props"
                 @click.stop="props.expand = !props.expand">

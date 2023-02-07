@@ -37,6 +37,8 @@
           <q-select
             v-model="repeatableField.fromType"
             v-bind="props.fieldProps"
+            emit-value
+            map-options
             class="col-3 q-pl-xs"
             label="Type"
             :options="fromTypes"
@@ -56,6 +58,8 @@
           <q-select
             v-model="repeatableField.type"
             v-bind="props.fieldProps"
+            emit-value
+            map-options
             class="col"
             label="Value type"
             :rules="defaultRule"
@@ -119,10 +123,6 @@ const repeatableFields = computed(() => logTypePageStore.newLogType.fields);
 const defaultRule = computed(() => ([
   (value) => !!value || 'Field is required',
 ]));
-
-onMounted(() => {
-  addLogTypeField();
-});
 
 function addLogTypeField() {
   logTypePageStore.newLogType.fields.push({

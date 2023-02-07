@@ -149,7 +149,7 @@ async function editLogType() {
 }
 
 async function saveLogType() {
-  const { addingLogType, editingLogType } = logTypePageStore;
+  const { addingLogType, editingLogType, newLogType } = logTypePageStore;
   const { value: addLogTypeFormReference = {} } = addLogTypeForm;
 
   const result = await addLogTypeFormReference?.validate().then((success) => success);
@@ -158,6 +158,17 @@ async function saveLogType() {
     $q.notify({
       type: 'negative',
       message: 'All fields must be valid to continue!',
+      timeout: 5000,
+    });
+    return;
+  }
+
+  const { fields = [] } = newLogType;
+
+  if (!fields.length) {
+    $q.notify({
+      type: 'negative',
+      message: 'You need to add at least one logtype!',
       timeout: 5000,
     });
     return;
