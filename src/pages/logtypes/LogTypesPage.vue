@@ -3,7 +3,7 @@
     <div class="row full-width content-center items-center q-mb-xl">
       <p class="text-h3 col-shrink q-mr-md q-mb-none">Search scheme</p>
       <q-btn
-        v-if="logTypePageStore.logTypesList.length"
+        v-if="searchSchemePageStore.logTypesList.length"
         dense
         no-caps
         unelevated
@@ -15,27 +15,14 @@
     </div>
 
     <div class="row full-width full-height">
-      <template v-if="logTypePageStore.logTypesList.length">
+      <template v-if="searchSchemePageStore.logTypesList.length">
         <q-table
           v-model:pagination="pagination"
           hide-pagination
           class="col-12"
           row-key="_id"
-          :columns="columns"
-          :filter="filter"
-          :rows="logTypePageStore.logTypesList">
-          <template v-slot:top-right>
-            <q-input
-              v-model="filter"
-              dense
-              outlined
-              debounce="300"
-              placeholder="Search">
-              <template v-slot:append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </template>
+          :columns="COLUMNS"
+          :rows="searchSchemePageStore.logTypesList">
 
           <template v-slot:header="props">
             <q-tr :props="props">
@@ -83,7 +70,7 @@
                     unelevated
                     class="q-mr-xs"
                     color="blue"
-                    @click.stop="editLogType(props.row._id)">
+                    @click.stop="editSearchSchemeById(props.row._id)">
                     <q-icon
                       name="edit"
                       color="white"
@@ -96,7 +83,7 @@
                     unelevated
                     class="q-ml-xs"
                     color="red-5"
-                    @click.stop="removeLogType(props.row._id)">
+                    @click.stop="removeSearchSchemeById(props.row._id)">
                     <q-icon
                       name="delete"
                       color="white"
@@ -125,7 +112,7 @@
             v-model="pagination.page"
             color="secondary"
             size="md"
-            :max="pagesNumber" />
+            :max="pagination.total" />
         </div>
       </template>
 
@@ -170,75 +157,52 @@ import {
   nextTick,
   onMounted,
 } from 'vue';
+
 import { useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
 import dayjs from 'dayjs';
 
-import useLogTypesPageStore from 'stores/pages/logTypesPage';
+import { services } from 'src/services';
 
-import ColumnTypes from './columns.type';
+import useLogTypesPageStore from 'stores/pages/logTypesPage';
+import { COLUMNS } from './contants';
 
 const $q = useQuasar();
-const logTypePageStore = useLogTypesPageStore();
-
-const columns: ColumnTypes[] = [
-  {
-    name: 'name',
-    label: 'Search scheme',
-    field: 'name',
-    align: 'left',
-  },
-  {
-    name: 'fields',
-    label: 'Fields',
-    field: 'fields',
-    align: 'left',
-    format: (val) => `${val.length} field${val.length > 1 ? 's' : ''}`,
-  },
-  {
-    name: 'created',
-    align: 'left',
-    label: 'Created At',
-    field: 'created',
-  },
-  {
-    name: 'actions',
-    align: 'right',
-    label: 'Actions',
-    field: 'actions',
-  },
-];
-
-const filter = ref('');
+const searchSchemePageStore = useLogTypesPageStore();
 
 const pagination = ref({
-  sortBy: 'desc',
-  descending: false,
   page: 1,
-  rowsPerPage: 5,
-  // rowsNumber: xx if getting data from a server
+  perPage: 5,
+  total: 1,
 });
 
-const pagesNumber = computed(() => {
-  const { logTypesList = [] } = logTypePageStore;
-  return Math.ceil(logTypesList.length / pagination.value.rowsPerPage);
-});
-
-watch(logTypePageStore.logTypesList, async () => {
+watch(searchSchemePageStore.logTypesList, async () => {
   await nextTick();
   Prism.highlightAll();
 });
 
-onMounted(() => {
+onMounted(async () => {
+  const {
+    items: searchSchemeList,
+    pagination: paginationIfo,
+  } = await services.searchSchemas.find(pagination.value);
+
+  pagination.value.total = paginationIfo.total;
+  searchSchemePageStore.setSearchScheme(searchSchemeList);
+
   Prism.highlightAll();
 });
 
 function addLogType() {
-  logTypePageStore.setAddingLogType(true);
+  searchSchemePageStore.setAddingLogType(true);
 }
 
-function editLogType(logTypeId: string): void {
-  const logTypeDataToEdit = logTypePageStore.readLogType(logTypeId);
+/**
+ * Edit search scheme by id
+ * @param searchSchemeId: string - Scheme id
+ */
+function editSearchSchemeById(searchSchemeId: string): void {
+  const logTypeDataToEdit = searchSchemePageStore.readLogType(searchSchemeId);
 
   if (isEmpty(logTypeDataToEdit)) return;
 
@@ -248,26 +212,31 @@ function editLogType(logTypeId: string): void {
     fields,
   } = logTypeDataToEdit;
 
-  logTypePageStore.newLogType = {
+  searchSchemePageStore.newLogType = {
     name,
     fields,
     _id,
   };
 
-  logTypePageStore.setEditingLogType(true);
+  searchSchemePageStore.setEditingLogType(true);
 }
 
-function removeLogType(logTypeId: string): void {
+/**
+ * Remove search scheme byu id
+ * @param searchSchemeId: string - Search scheme
+ */
+function removeSearchSchemeById(searchSchemeId: string): void {
   const dialogProps = {
     title: 'Confirm',
-    message: 'Would you like to delete this logType?',
+    message: 'Would you like to delete this search scheme?',
     cancel: true,
     persistent: true,
   };
 
   $q.dialog(dialogProps)
     .onOk(async () => {
-      await logTypePageStore.deleteLogType(logTypeId);
+      await services.searchSchemas.deleteById(searchSchemeId);
+      await searchSchemePageStore.deleteLogType(searchSchemeId);
     })
     .onCancel(() => {
       // nothing here

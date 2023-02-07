@@ -18,10 +18,12 @@ export const useActions = defineStore('notifications.actions', () => {
   function clearNewNotification() {
     setAddingNotification(false);
     setEditingNotification(false);
+
     state.newNotification = {
       type: 'email',
       enable: true,
       name: '',
+      // @ts-ignore
       options: {},
     };
   }

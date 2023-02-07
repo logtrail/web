@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { uid } from 'quasar';
+import { services } from 'src/services';
 
 import { useState } from './state';
 import LogType from './types/logType.type';
@@ -30,6 +31,10 @@ export const useActions = defineStore('logTypes.actions', () => {
     };
   }
 
+  function setSearchScheme(searSchemeList: any[]) {
+    state.logTypesList = searSchemeList;
+  }
+
   async function createLogType(): Promise<boolean> {
     const id = uid();
     const created = '';
@@ -37,13 +42,8 @@ export const useActions = defineStore('logTypes.actions', () => {
 
     const { newLogType } = state;
     try {
-      // call API to add logType on DB
-      state.logTypesList.push({
-        ...newLogType,
-        _id: id,
-        created,
-        modified,
-      });
+      const searchSchemeAdded = await services.searchSchemas.create(newLogType);
+      state.logTypesList.push(searchSchemeAdded);
 
       clearNewLogType();
       return true;
@@ -89,6 +89,10 @@ export const useActions = defineStore('logTypes.actions', () => {
         });
 
       if (logTypeIndexToBeUpdated !== -1) {
+        if (logTypeId != null) {
+          await services.searchSchemas.updateById(logTypeId, newLogType);
+        }
+
         state.logTypesList[logTypeIndexToBeUpdated] = {
           ...state.logTypesList[logTypeIndexToBeUpdated],
           ...newLogType,
@@ -98,7 +102,7 @@ export const useActions = defineStore('logTypes.actions', () => {
 
       return true;
     } catch (ex) {
-      // console.error(ex);
+      console.error(ex);
       return false;
     }
   }
@@ -132,6 +136,7 @@ export const useActions = defineStore('logTypes.actions', () => {
   return {
     clearData,
     clearNewLogType,
+    setSearchScheme,
     setAddingLogType,
     setEditingLogType,
 
