@@ -55,7 +55,7 @@
 
       <div class="row col-12 q-mb-md">
         <q-select
-          v-model="categoriesPageStore.newCategory.logType"
+          v-model="categoriesPageStore.newCategory.logTypeId"
           v-bind="fieldDefaultProps"
           emit-value
           map-options

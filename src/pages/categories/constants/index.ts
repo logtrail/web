@@ -17,10 +17,10 @@ export const COLUMNS: QTableColumn[] = [
     field: 'level',
   },
   {
-    name: 'logType',
+    name: 'logTypeName',
     align: 'left',
     label: 'Search scheme',
-    field: 'logType',
+    field: 'logTypeName',
   },
   {
     name: 'notifications',

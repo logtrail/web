@@ -3,7 +3,7 @@ import NotificationInCategory from './notificationInCategory.type';
 export type Category = {
   name: string;
   level: string;
-  logType: string;
+  logTypeId: string;
   notifications: NotificationInCategory[];
 
   _id?: string;

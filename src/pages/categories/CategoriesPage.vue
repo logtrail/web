@@ -63,6 +63,10 @@
                   {{ getLevelNameByName(col.value) }}
                 </q-chip>
 
+                <span v-if="col.name === 'logTypeName'">
+                  {{ col.value }}
+                </span>
+
                  <span v-if="col.name === 'notifications'">
                   {{ notificationsTotal(col.value) }}
                 </span>
@@ -99,6 +103,7 @@
                       size="18px" />
                   </q-btn>
                 </div>
+
               </q-td>
             </q-tr>
 
@@ -245,6 +250,7 @@ function removeCategory(categoryId: string): void {
 
   $q.dialog(dialogProps)
     .onOk(async () => {
+      await services.categories.deleteById(categoryId);
       await categoryPageStore.deleteCategory(categoryId);
     })
     .onCancel(() => {

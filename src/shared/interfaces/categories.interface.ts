@@ -13,6 +13,7 @@ export interface Category {
   name: string;
   level: string;
   logTypeId: string;
+  logTypeName?: string;
   notifications?: Notification[];
 }
 
