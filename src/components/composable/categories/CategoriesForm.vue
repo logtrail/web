@@ -60,8 +60,8 @@
           emit-value
           map-options
           class="col"
-          label="LogType"
-          :options="logTypesOptions"
+          label="Search scheme"
+          :options="searchSchemeOptions"
           :rules="defaultRule" />
       </div>
 
@@ -92,14 +92,15 @@ export default {
 
 <script setup>
 import {
-  // defineAsyncComponent,
+  onMounted,
   ref,
   computed,
 } from 'vue';
+
 import { useQuasar } from 'quasar';
-
+import { services } from 'src/services';
 import useCategoryPageStore from 'src/stores/pages/categoriesPage';
-
+import { LEVEL_OPTIONS } from 'src/shared/constants';
 import NotificationsFields from 'components/composable/categories/NotificationsFields.vue';
 
 const $q = useQuasar();
@@ -113,17 +114,9 @@ const fieldDefaultProps = {
   'hide-bottom-space': true,
 };
 
-const LEVEL_OPTIONS = [
-  { value: 'info', label: 'Information', color: 'info' },
-  { value: 'warning', label: 'Warning', color: 'warning' },
-  { value: 'danger', label: 'Danger', color: 'red-4' },
-];
-
-const logTypes = [];
-
-const currentSelection = ref('');
 const addCategoryForm = ref(null);
 const notificationOptions = ref([]);
+const searchSchemeOptions = ref([]);
 
 const categoryTitle = computed(() => {
   const { addingCategory, editingCategory } = categoriesPageStore;
@@ -137,6 +130,27 @@ const categoryTitle = computed(() => {
 const defaultRule = computed(() => ([
   (value) => !!value || 'Field is required',
 ]));
+
+onMounted(async () => {
+  const findSearchSchemes = services.searchSchemas.find({ page: 1, perPage: 500 });
+  const findNotifications = services.notifications.find({ page: 1, perPage: 500 });
+
+  const [
+    retDataSearchSchemes,
+    retDataNotifications,
+  ] = await Promise.all([findSearchSchemes, findNotifications]);
+
+  const { items: searchSchemeList = [] } = retDataSearchSchemes;
+  const { items: notificationList = [] } = retDataNotifications;
+
+  searchSchemeOptions.value = searchSchemeList.map((el) => (
+    { label: el.name, value: el._id }
+  ));
+
+  notificationOptions.value = notificationList.map((el) => (
+    { label: el.name, value: el._id, type: el.type }
+  ));
+});
 
 function closeNewCategory() {
   categoriesPageStore.clearNewCategory();

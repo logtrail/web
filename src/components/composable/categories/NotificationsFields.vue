@@ -33,8 +33,7 @@
             map-options
             class="col"
             label="Notification type"
-            :options="props.notificationOptions"
-            :rules="defaultRule" />
+            :options="props.notificationOptions" />
         </div>
 
         <div class="col-12 row">
@@ -42,8 +41,7 @@
             v-model="repeatableField.destination"
             v-bind="props.fieldProps"
             class="col"
-            label="Destination"
-            :rules="defaultRule" />
+            label="Destination"/>
         </div>
       </div>
     </div>

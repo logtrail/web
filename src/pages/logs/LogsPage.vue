@@ -552,6 +552,8 @@ import LtInput from 'components/general/input/LtInput.vue';
 import LtSelect from 'components/general/select/LtSelect.vue';
 import NoData from 'components/general/banner/NoData.vue';
 
+import { LEVEL_OPTIONS } from 'src/shared/constants';
+
 import {
   OperationOptions,
   FieldName,
@@ -561,7 +563,6 @@ import {
 
 import {
   COLUMNS,
-  LEVEL_OPTIONS,
   NUMBER_OPERATIONS,
   BOOLEAN_VALUES,
   ALL_OPERATIONS,

@@ -36,7 +36,7 @@ async function find(queryParams: Find) {
  */
 async function updateById(id: string, payload: Partial<Category>) {
   // @ts-ignore
-  const retData = await this.path(`${BASE_URL}/${id}`, payload);
+  const retData = await this.patch(`${BASE_URL}/${id}`, payload);
   return getData(retData);
 }
 

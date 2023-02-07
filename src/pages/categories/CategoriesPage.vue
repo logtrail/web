@@ -21,22 +21,8 @@
           hide-pagination
           class="col-12"
           row-key="_id"
-          :columns="columns"
-          :filter="filter"
+          :columns="COLUMNS"
           :rows="categoryPageStore.categoriesList">
-          <template v-slot:top-right>
-            <q-input
-              v-model="filter"
-              dense
-              outlined
-              debounce="300"
-              placeholder="Search">
-              <template v-slot:append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </template>
-
           <template v-slot:header="props">
             <q-tr :props="props">
               <q-th auto-width />
@@ -70,7 +56,17 @@
                 :props="props"
                 @click.stop="props.expand = !props.expand">
                 <span v-if="col.name === 'name'">{{ col.value }}</span>
-                <span v-if="col.name === 'fields'">{{ col.value }}</span>
+
+                <q-chip
+                  v-if="col.name === 'level'"
+                  :color="getLevelColorByName(col.value) || 'grey-4'">
+                  {{ getLevelNameByName(col.value) }}
+                </q-chip>
+
+                 <span v-if="col.name === 'notifications'">
+                  {{ notificationsTotal(col.value) }}
+                </span>
+
                 <span v-if="col.name === 'created'">
                   {{ formatDate(col.value, 'YYYY/MM/DD HH:mm:ss') }}
                 </span>
@@ -125,7 +121,7 @@
             v-model="pagination.page"
             color="secondary"
             size="md"
-            :max="pagesNumber" />
+            :max="pagination.total" />
         </div>
       </template>
 
@@ -163,7 +159,6 @@ import Prism from 'prismjs';
 import 'prismjs/themes/prism.min.css';
 import 'prismjs/components/prism-javascript';
 
-import dayjs from 'dayjs';
 import {
   ref,
   computed,
@@ -171,62 +166,28 @@ import {
   nextTick,
   onMounted,
 } from 'vue';
+
 import { useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
 
+import { services } from 'src/services';
+
+import { formatDate } from 'src/shared/helpers';
+import { LEVEL_OPTIONS } from 'src/shared/constants';
+
 import useCategoriesPageStore from 'stores/pages/categoriesPage';
 
-import ColumnTypes from './columns.type';
+import { COLUMNS } from './constants';
 
 const $q = useQuasar();
 const categoryPageStore = useCategoriesPageStore();
 
-const columns: ColumnTypes[] = [
-  {
-    name: 'name',
-    label: 'Name',
-    field: 'name',
-    align: 'left',
-  },
-  {
-    name: 'level',
-    align: 'left',
-    label: 'Level',
-    field: 'level',
-  },
-  {
-    name: 'logType',
-    align: 'left',
-    label: 'LogType',
-    field: 'logType',
-  },
-  {
-    name: 'notifications',
-    align: 'left',
-    label: 'Notifications',
-    field: 'notifications',
-  },
-  {
-    name: 'actions',
-    align: 'right',
-    label: 'Actions',
-    field: 'actions',
-  },
-];
-
 const filter = ref('');
 
 const pagination = ref({
-  sortBy: 'desc',
-  descending: false,
   page: 1,
-  rowsPerPage: 5,
-  // rowsNumber: xx if getting data from a server
-});
-
-const pagesNumber = computed(() => {
-  const { categoriesList = [] } = categoryPageStore;
-  return Math.ceil(categoriesList.length / pagination.value.rowsPerPage);
+  perPage: 10,
+  total: 1,
 });
 
 watch(categoryPageStore.categoriesList, async () => {
@@ -234,7 +195,16 @@ watch(categoryPageStore.categoriesList, async () => {
   Prism.highlightAll();
 });
 
-onMounted(() => {
+onMounted(async () => {
+  const {
+    items: categoriesList,
+    pagination: paginationIfo,
+  } = await services.categories.find(pagination.value);
+
+  categoryPageStore.setCategories(categoriesList);
+  pagination.value.total = paginationIfo.total;
+
+  await nextTick();
   Prism.highlightAll();
 });
 
@@ -282,14 +252,32 @@ function removeCategory(categoryId: string): void {
     });
 }
 
-/**
- * Format date
- * @param date: Date - Date to format
- * @param format: string - Format type
- */
-function formatDate(date: Date, format: string) {
-  return dayjs(date).format(format);
+function getLevelNameByName(name: string) {
+  const { label: currentLevelName } = LEVEL_OPTIONS
+    .find((levelOption) => levelOption.value === name) || {};
+
+  return currentLevelName;
 }
+
+function notificationsTotal(notifications: any[]) {
+  if (notifications) {
+    const total = notifications.length;
+    return `${total} notification${total === 1 ? '' : 's'}`;
+  }
+  return 'No associated notification';
+}
+
+/**
+ * Get color by level
+ * @param level: string - Level name
+ */
+function getLevelColorByName(level: string) {
+  const { color: currentLevelOptionColor } = LEVEL_OPTIONS
+    .find((levelOption) => levelOption.value === level) || {};
+
+  return currentLevelOptionColor;
+}
+
 </script>
 
 <style lang="scss">

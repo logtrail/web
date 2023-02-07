@@ -190,6 +190,7 @@ onMounted(async () => {
   pagination.value.total = paginationIfo.total;
   searchSchemePageStore.setSearchScheme(searchSchemeList);
 
+  await nextTick();
   Prism.highlightAll();
 });
 

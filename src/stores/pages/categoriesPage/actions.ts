@@ -26,6 +26,10 @@ export const useActions = defineStore('categories.actions', () => {
     };
   }
 
+  function setCategories(categoriesList: any[]) {
+    state.categoriesList = categoriesList;
+  }
+
   async function createCategory(): Promise<boolean> {
     const id = uid();
     const created = '';
@@ -128,6 +132,7 @@ export const useActions = defineStore('categories.actions', () => {
   return {
     clearData,
     clearNewCategory,
+    setCategories,
     setAddingCategory,
     setEditingCategory,
 
