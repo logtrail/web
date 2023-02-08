@@ -552,7 +552,8 @@ import LtInput from 'components/general/input/LtInput.vue';
 import LtSelect from 'components/general/select/LtSelect.vue';
 import NoData from 'components/general/banner/NoData.vue';
 
-import { LEVEL_OPTIONS } from 'src/shared/constants';
+import { LEVEL_OPTIONS, LIMIT_PER_PAGE } from 'src/shared/constants';
+imo
 
 import {
   OperationOptions,
@@ -643,7 +644,7 @@ async function previousPage() {
   logsData.value = await services.logs.search({
     created,
     previousCursor,
-    limit: 10,
+    limit: LIMIT_PER_PAGE,
     filters: advancedFilters.value,
   });
 
@@ -655,16 +656,34 @@ async function previousPage() {
  * Next page in cursor pagination
  */
 async function nextPage() {
-  const created = {
-    start: dayjs(startDate.value).toISOString(),
-    end: dayjs(endDate.value).toISOString(),
-  };
   const lastRegister = logsData.value[logsData.value.length - 1];
   const nextCursor = lastRegister._id;
+
+  const payload = {
+    nextCursor,
+
+    created: {
+      start: dayjs(startDate.value).toISOString(),
+      end: dayjs(endDate.value).toISOString(),
+    }
+  } as any;
+
+
+  if (!isEmpty(levels.value)) payload.levels = getValueBySelect(levels.value);
+  if (!isEmpty(categories.value)) payload.categories = getValueBySelect(categories.value);
+  if (!isEmpty(advancedFilters.value)) payload.filters = advancedFilters.value;
+
+  logsData.value = await services.logs.search(payload);
+
+  await nextTick();
+  Prism.highlightAll();
+
+
+
   logsData.value = await services.logs.search({
     created,
     nextCursor,
-    limit: 10,
+    limit: LIMIT_PER_PAGE,
     filters: advancedFilters.value,
   });
 
@@ -712,12 +731,8 @@ async function getSearchSchemes() {
  * Search logs
  */
 async function getLogs() {
-  const getValueBySelect = (
-    selectedValues: { label: string, value: string }[],
-  ) => selectedValues.map((level: any) => level.value);
-
   const payload: any = {
-    limit: 10,
+    limit: LIMIT_PER_PAGE,
     created: {
       start: dayjs(startDate.value).toISOString(),
       end: dayjs(endDate.value).toISOString(),

@@ -59,23 +59,17 @@ export default {
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-
+import { services } from 'src/services';
 import LtInput from 'components/general/input/LtInput.vue';
 
 import { TRANSFORM_FIELDS } from './constants';
 
-const settingsDatabase: any = {
-  versionDb: '5.0.14',
-  totalDocs: '22',
-  avgDocSize: '583 bytes',
-  storageSize: '84 KB',
-  maxSize: '200 MB',
-};
+const settingsDatabase = ref<any>({});
 
 const settingsToShow = computed(() => {
-  const newFields = Object.keys(settingsDatabase).map((key: string) => {
-    const { [key]: value } = settingsDatabase;
-    const formattedField = TRANSFORM_FIELDS[key](value, settingsDatabase);
+  const newFields = Object.keys(settingsDatabase.value).map((key: string) => {
+    const { [key]: value } = settingsDatabase.value;
+    const formattedField = TRANSFORM_FIELDS[key](value, settingsDatabase.value);
 
     return formattedField;
   });
@@ -90,7 +84,8 @@ const canSaveChanges = computed(() => {
 
 const settingsValues = ref<object>({});
 
-onMounted(() => {
+onMounted(async () => {
+  settingsDatabase.value = await services.management.collectionStatus();
   settingsToShow.value.forEach((element: any) => {
     const { canEdit, key, value } = element;
     if (canEdit) updateFieldValue(key, value);
