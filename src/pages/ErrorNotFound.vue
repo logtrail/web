@@ -1,17 +1,15 @@
 <template>
-  <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
+  <div class="fullscreen bg-secondary text-white text-center q-pa-md flex flex-center">
     <div>
-      <div style="font-size: 30vh">
-        404
-      </div>
+      <NotFound />
 
-      <div class="text-h2" style="opacity:.4">
+      <div class="text-h2 text-primary">
         Oops. Nothing here...
       </div>
 
       <q-btn
         class="q-mt-xl"
-        color="white"
+        color="primary"
         text-color="blue"
         unelevated
         to="/"
@@ -23,5 +21,5 @@
 </template>
 
 <script setup lang="ts">
-
+import NotFound from 'components/general/imagesSvg/NotFound.vue';
 </script>

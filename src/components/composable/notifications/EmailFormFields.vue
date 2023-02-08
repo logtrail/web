@@ -57,7 +57,7 @@
 
       <div class="row col-12">
         <q-input
-          v-model="notificationPageStore.newNotification.options.port"
+          v-model.number="notificationPageStore.newNotification.options.port"
           v-bind="props.fieldProps"
           stack-label
           class="col"

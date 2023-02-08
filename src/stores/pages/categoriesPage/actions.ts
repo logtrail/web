@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { uid } from 'quasar';
 
+import { services } from 'src/services';
+
 import { useState } from './state';
 import Category from './types/category.type';
 
@@ -21,9 +23,13 @@ export const useActions = defineStore('categories.actions', () => {
     state.newCategory = {
       name: '',
       level: '',
-      logType: '',
+      logTypeId: '',
       notifications: [],
     };
+  }
+
+  function setCategories(categoriesList: any[]) {
+    state.categoriesList = categoriesList;
   }
 
   async function createCategory(): Promise<boolean> {
@@ -33,13 +39,8 @@ export const useActions = defineStore('categories.actions', () => {
 
     const { newCategory } = state;
     try {
-      // call API to add category on DB
-      state.categoriesList.push({
-        ...newCategory,
-        _id: id,
-        created,
-        modified,
-      });
+      const newCategoryAdded = await services.categories.create(newCategory);
+      state.categoriesList.push(newCategoryAdded);
 
       clearNewCategory();
       return true;
@@ -128,6 +129,7 @@ export const useActions = defineStore('categories.actions', () => {
   return {
     clearData,
     clearNewCategory,
+    setCategories,
     setAddingCategory,
     setEditingCategory,
 

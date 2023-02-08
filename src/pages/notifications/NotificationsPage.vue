@@ -7,7 +7,7 @@
         dense
         no-caps
         unelevated
-        class="col-shrink btn-primary bg-primary text-secondary"
+        class="col-shrink btn-primary bg-primary text-white"
         icon="add"
         label="New notification"
         padding="xs sm"
@@ -24,18 +24,6 @@
           :columns="columns"
           :filter="filter"
           :rows="notificationPageStore.notificationsList">
-          <template v-slot:top-right>
-            <q-input
-              v-model="filter"
-              dense
-              outlined
-              debounce="300"
-              placeholder="Search">
-              <template v-slot:append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </template>
 
           <template v-slot:body-cell-enable="props">
             <q-td :props="props">
@@ -67,10 +55,10 @@
                   round
                   unelevated
                   class="q-ml-xs"
-                  color="red"
+                  color="red-5"
                   @click="removeNotification(props.row._id)">
                   <q-icon
-                    name="delete_forever"
+                    name="delete"
                     color="white"
                     size="18px" />
                 </q-btn>
@@ -91,7 +79,7 @@
       <template v-else>
         <div class="row col-12 justify-center items-center notification-no-data">
           <div class="col-12 text-center">
-            <img src="img/empty-notification.svg" width="250" height="250" alt="">
+            <EmptyNotification />
             <p class="q-mt-md text-weight-bold">
               Wait! You don't have notifications accounts yet! Try to add new notification accounts.
             </p>
@@ -99,7 +87,7 @@
               dense
               no-caps
               unelevated
-              class="col-shrink btn-primary bg-primary text-secondary text-weight-bold"
+              class="col-shrink btn-primary bg-primary text-weight-bold text-white"
               icon="add"
               label="New notification"
               padding="xs sm"
@@ -118,13 +106,16 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
 
-import useNotificationPageStore from 'stores/pages/notificationsPage';
+import EmptyNotification from 'components/general/imagesSvg/EmptyNotification.vue';
 
-import ColumnTypes from './columns.type';
+import { services } from 'src/services';
+
+import useNotificationPageStore from 'stores/pages/notificationsPage';
+import { ColumnTypes } from './types';
 
 const $q = useQuasar();
 const notificationPageStore = useNotificationPageStore();
@@ -136,16 +127,18 @@ const addNotification = () => {
 };
 
 const pagination = ref({
-  sortBy: 'desc',
-  descending: false,
   page: 1,
-  rowsPerPage: 5,
-  // rowsNumber: xx if getting data from a server
+  perPage: 5,
 });
 
 const pagesNumber = computed(() => {
   const { notificationsList = [] } = notificationPageStore;
   return Math.ceil(notificationsList.length / pagination.value.rowsPerPage);
+});
+
+onMounted(async () => {
+  const { items: notificationList } = await services.notifications.find(pagination.value);
+  notificationPageStore.setNotifications(notificationList);
 });
 
 const columns: ColumnTypes[] = [
@@ -215,6 +208,7 @@ function removeNotification(notificationId: string): void {
 
   $q.dialog(dialogProps)
     .onOk(async () => {
+      await services.notifications.deleteById(notificationId);
       await notificationPageStore.deleteNotification(notificationId);
     })
     .onCancel(() => {

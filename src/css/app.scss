@@ -1,7 +1,13 @@
 @import './Inter.scss';
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
+
 
 body * {
   font-family: 'Inter', sans-serif;
+}
+
+pre * {
+  font-family: 'Source Code Pro'!important;
 }
 
 .q-page-container {
@@ -12,6 +18,10 @@ body * {
     margin: 0 auto;
     padding: 16px;
   }
+}
+
+.image-svg {
+  color: $primary!important;
 }
 
 @import './components/_components';

@@ -8,13 +8,13 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/categories',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('layouts/CategoriesLayout.vue'),
     children: [{ path: '', component: () => import('pages/categories/CategoriesPage.vue') }],
   },
   {
-    path: '/logtypes',
-    component: () => import('layouts/LogTypesLayout.vue'),
-    children: [{ path: '', component: () => import('pages/logtypes/LogTypesPage.vue') }],
+    path: '/searchscheme',
+    component: () => import('layouts/SearchSchemeLayout.vue'),
+    children: [{ path: '', component: () => import('pages/searchScheme/SearchSchemePage.vue') }],
   },
   {
     path: '/notifications',

@@ -12,8 +12,13 @@ export const useState = defineStore({
     newCategory: {
       name: '',
       level: '',
-      logType: '',
-      notifications: [],
+      logTypeId: '',
+      notifications: [
+        {
+          notificationId: '',
+          destination: '',
+        },
+      ],
     },
     categoriesList: [],
   }),

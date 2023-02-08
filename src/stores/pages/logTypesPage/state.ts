@@ -9,7 +9,16 @@ export const useState = defineStore({
     addingLogType: false,
     editingLogType: false,
 
-    newLogType: {},
+    newLogType: {
+      name: '',
+      fields: [
+        {
+          from: '',
+          to: '',
+          type: '',
+        },
+      ],
+    },
     logTypesList: [],
   }),
 });
