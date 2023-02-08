@@ -79,7 +79,7 @@
       <template v-else>
         <div class="row col-12 justify-center items-center notification-no-data">
           <div class="col-12 text-center">
-            <img src="img/empty-notification.svg" width="250" height="250" alt="">
+            <EmptyNotification />
             <p class="q-mt-md text-weight-bold">
               Wait! You don't have notifications accounts yet! Try to add new notification accounts.
             </p>
@@ -109,6 +109,8 @@ export default {
 import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { isEmpty } from 'lodash';
+
+import EmptyNotification from 'components/general/imagesSvg/EmptyNotification.vue';
 
 import { services } from 'src/services';
 

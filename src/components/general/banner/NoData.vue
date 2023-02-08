@@ -1,7 +1,7 @@
 <template>
   <div class="row col-12 justify-center items-center logs-no-data">
     <div class="col-12 text-center">
-      <img src="img/empty-dash.svg" width="450" height="350" alt="">
+      <EmptyDashboard />
       <p class="text-weight-bold">
         You don't have logs yet!
       </p>
@@ -13,4 +13,8 @@
 export default {
   name: 'BannerNoData',
 };
+</script>
+
+<script setup lang="ts">
+import EmptyDashboard from 'components/general/imagesSvg/EmptyDashboard.vue';
 </script>
