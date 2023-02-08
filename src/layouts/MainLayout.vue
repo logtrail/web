@@ -67,10 +67,10 @@ const menus = [
     route: '/categories',
   },
   {
-    id: 'logtypes',
+    id: 'searchScheme',
     icon: 'storage', // 'data_object',
     label: 'Search scheme',
-    route: '/logtypes',
+    route: '/searchscheme',
   },
   {
     id: 'notifications',

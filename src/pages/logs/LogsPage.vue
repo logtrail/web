@@ -4,189 +4,191 @@
       <p class="text-h3 col-grow q-mr-md q-mb-none">Logs</p>
     </div>
 
-    <div class="row q-pb-sm full-width q-col-gutter-sm items-center logs-simple-filter">
-      <div class="row col-12 col-md-6 col-lg-3">
-        <LtInput
-          v-model="startDate"
-          readonly
-          class="col"
-          label="Start Date">
-          <template v-slot:prepend>
-            <q-icon
-              class="cursor-pointer"
-              name="event">
-              <q-popup-proxy
-                cover
-                transition-hide="scale"
-                transition-show="scale">
-                <q-date
-                  v-model="startDate"
-                  mask="YYYY-MM-DD HH:mm">
-                  <div class="row items-center justify-end">
-                    <q-btn
-                      v-close-popup
-                      flat
-                      color="primary"
-                      label="Close" />
-                  </div>
-                </q-date>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
+    <div class="row full-width logs-simple-filter">
+      <div class="row full-width q-col-gutter-sm items-center q-pb-sm">
+        <div class="row col-12 col-md-6 col-lg-3">
+          <LtInput
+            v-model="startDate"
+            readonly
+            class="col"
+            label="Start Date">
+            <template v-slot:prepend>
+              <q-icon
+                class="cursor-pointer"
+                name="event">
+                <q-popup-proxy
+                  cover
+                  transition-hide="scale"
+                  transition-show="scale">
+                  <q-date
+                    v-model="startDate"
+                    mask="YYYY-MM-DD HH:mm">
+                    <div class="row items-center justify-end">
+                      <q-btn
+                        v-close-popup
+                        flat
+                        color="primary"
+                        label="Close" />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
 
-          <template v-slot:append>
-            <q-icon
-              class="cursor-pointer"
-              name="access_time">
-              <q-popup-proxy
-                cover
-                transition-hide="scale"
-                transition-show="scale">
-                <q-time
-                  v-model="startDate"
-                  format24h
-                  mask="YYYY-MM-DD HH:mm">
-                  <div class="row items-center justify-end">
-                    <q-btn
-                      v-close-popup
-                      flat
-                      color="primary"
-                      label="Close" />
-                  </div>
-                </q-time>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </LtInput>
-      </div>
+            <template v-slot:append>
+              <q-icon
+                class="cursor-pointer"
+                name="access_time">
+                <q-popup-proxy
+                  cover
+                  transition-hide="scale"
+                  transition-show="scale">
+                  <q-time
+                    v-model="startDate"
+                    format24h
+                    mask="YYYY-MM-DD HH:mm">
+                    <div class="row items-center justify-end">
+                      <q-btn
+                        v-close-popup
+                        flat
+                        color="primary"
+                        label="Close" />
+                    </div>
+                  </q-time>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </LtInput>
+        </div>
 
-      <div class="row col-12 col-md-6 col-lg-3">
-        <LtInput
-          v-model="endDate"
-          readonly
-          class="col"
-          label="End Date">
-          <template v-slot:prepend>
-            <q-icon
-              class="cursor-pointer"
-              name="event">
-              <q-popup-proxy
-                cover
-                transition-hide="scale"
-                transition-show="scale">
-                <q-date
-                  v-model="endDate"
-                  mask="YYYY-MM-DD HH:mm">
-                  <div class="row items-center justify-end">
-                    <q-btn
-                      v-close-popup
-                      flat
-                      color="primary"
-                      label="Close" />
-                  </div>
-                </q-date>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
+        <div class="row col-12 col-md-6 col-lg-3">
+          <LtInput
+            v-model="endDate"
+            readonly
+            class="col"
+            label="End Date">
+            <template v-slot:prepend>
+              <q-icon
+                class="cursor-pointer"
+                name="event">
+                <q-popup-proxy
+                  cover
+                  transition-hide="scale"
+                  transition-show="scale">
+                  <q-date
+                    v-model="endDate"
+                    mask="YYYY-MM-DD HH:mm">
+                    <div class="row items-center justify-end">
+                      <q-btn
+                        v-close-popup
+                        flat
+                        color="primary"
+                        label="Close" />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
 
-          <template v-slot:append>
-            <q-icon
-              class="cursor-pointer"
-              name="access_time">
-              <q-popup-proxy
-                cover
-                transition-hide="scale"
-                transition-show="scale">
-                <q-time
-                  v-model="endDate"
-                  format24h
-                  mask="YYYY-MM-DD HH:mm">
-                  <div class="row items-center justify-end">
-                    <q-btn
-                      v-close-popup
-                      flat
-                      color="primary"
-                      label="Close" />
-                  </div>
-                </q-time>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </LtInput>
-      </div>
+            <template v-slot:append>
+              <q-icon
+                class="cursor-pointer"
+                name="access_time">
+                <q-popup-proxy
+                  cover
+                  transition-hide="scale"
+                  transition-show="scale">
+                  <q-time
+                    v-model="endDate"
+                    format24h
+                    mask="YYYY-MM-DD HH:mm">
+                    <div class="row items-center justify-end">
+                      <q-btn
+                        v-close-popup
+                        flat
+                        color="primary"
+                        label="Close" />
+                    </div>
+                  </q-time>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </LtInput>
+        </div>
 
-      <div class="row col-12 col-md-6 col-lg-3">
-        <q-select
-          v-model="levels"
-          dense
-          hide-bottom-space
-          multiple
-          no-error-icon
-          outlined
-          bg-color="white"
-          class="col"
-          label="Levels"
-          :options="LEVEL_OPTIONS">
-          <template v-slot:option="scope">
-            <q-item v-bind="scope.itemProps">
-              <q-item-section>
-                <q-item-label>
-                  <q-chip :color="scope.opt.color || 'grey-4'">
-                    {{ scope.opt.label }}
-                  </q-chip>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </template>
+        <div class="row col-12 col-md-6 col-lg-3">
+          <q-select
+            v-model="levels"
+            dense
+            hide-bottom-space
+            multiple
+            no-error-icon
+            outlined
+            bg-color="white"
+            class="col"
+            label="Levels"
+            :options="LEVEL_OPTIONS">
+            <template v-slot:option="scope">
+              <q-item v-bind="scope.itemProps">
+                <q-item-section>
+                  <q-item-label>
+                    <q-chip :color="scope.opt.color || 'grey-4'">
+                      {{ scope.opt.label }}
+                    </q-chip>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
 
-          <template v-slot:selected>
-            <div
-              v-if="levels.length"
-              class="row items-center">
-              <q-chip
-                dense
-                :color="levels[0].color || 'grey-4'">
-                {{ levels[0].label }}
-              </q-chip>
-              <q-chip
-                v-if="levels.length > 1"
-                dense>
-                +{{ levels.length - 1 }}
-              </q-chip>
-            </div>
-          </template>
-        </q-select>
-      </div>
+            <template v-slot:selected>
+              <div
+                v-if="levels.length"
+                class="row items-center">
+                <q-chip
+                  dense
+                  :color="levels[0].color || 'grey-4'">
+                  {{ levels[0].label }}
+                </q-chip>
+                <q-chip
+                  v-if="levels.length > 1"
+                  dense>
+                  +{{ levels.length - 1 }}
+                </q-chip>
+              </div>
+            </template>
+          </q-select>
+        </div>
 
-      <div class="row col-12 col-md-6 col-lg-3">
-        <LtSelect
-          v-model="categories"
-          multiple
-          class="col"
-          label="Categories"
-          :loading="searchMoreCategories"
-          :options="categoriesOptions"
-          @virtual-scroll="getCategories">
-          <template v-slot:selected>
-            <div
-              v-if="categories.length"
-              class="row items-center">
-              <q-chip dense>
-                {{ categories[0].label }}
-              </q-chip>
+        <div class="row col-12 col-md-6 col-lg-3">
+          <LtSelect
+            v-model="categories"
+            multiple
+            class="col"
+            label="Categories"
+            :loading="searchMoreCategories"
+            :options="categoriesOptions"
+            @virtual-scroll="getCategories">
+            <template v-slot:selected>
+              <div
+                v-if="categories.length"
+                class="row items-center">
+                <q-chip dense>
+                  {{ categories[0].label }}
+                </q-chip>
 
-              <q-chip
-                v-if="categories.length > 1"
-                dense>
-                +{{ categories.length - 1 }}
-              </q-chip>
-            </div>
-          </template>
-        </LtSelect>
+                <q-chip
+                  v-if="categories.length > 1"
+                  dense>
+                  +{{ categories.length - 1 }}
+                </q-chip>
+              </div>
+            </template>
+          </LtSelect>
+        </div>
       </div>
 
       <div class="row reverse full-width items-center q-col-gutter-sm">
-        <div class="row col-shrink">
+        <div class="row col-12 col-md-shrink">
           <q-btn
             no-caps
             unelevated
@@ -197,7 +199,7 @@
             @click.stop="getLogs" />
         </div>
 
-        <div class="row col-shrink">
+        <div class="row col-12 col-md-shrink">
           <q-btn
             flat
             no-caps
@@ -1000,8 +1002,9 @@ function getPartialFromEventValue(value: string) {
 $header-height: 50px;
 $padding-y: 32px;
 $title-height: 50px + 48px; // 48px margin bottom
+$filters-height: 132px;
 
-$used-area: $header-height + $padding-y + ($title-height * 2);
+$used-area: $header-height + $padding-y + ($title-height * 2) + $filters-height;
 
 .q-table__card {
   box-shadow: none;

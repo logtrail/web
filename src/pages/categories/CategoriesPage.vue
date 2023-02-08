@@ -67,7 +67,7 @@
                   {{ col.value }}
                 </span>
 
-                 <span v-if="col.name === 'notifications'">
+                <span v-if="col.name === 'notifications'">
                   {{ notificationsTotal(col.value) }}
                 </span>
 
@@ -133,7 +133,7 @@
       <template v-else>
         <div class="row col-12 justify-center items-center category-no-data">
           <div class="col-12 text-center">
-            <img src="img/empty-category.svg" width="250" height="250" alt="">
+            <EmptyCategory />
             <p class="q-mt-md text-weight-bold">
               Wait! You don't have categories yet! Try to add new categories.
             </p>
@@ -163,6 +163,8 @@ export default {
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.min.css';
 import 'prismjs/components/prism-javascript';
+
+import EmptyCategory from 'components/general/imagesSvg/EmptyCategory.vue';
 
 import {
   ref,
@@ -226,7 +228,7 @@ function editCategory(categoryId: string): void {
     _id,
     name,
     level,
-    logType,
+    logTypeId,
     notifications,
   } = categoryDataToEdit;
 
@@ -234,7 +236,7 @@ function editCategory(categoryId: string): void {
     _id,
     name,
     level,
-    logType,
+    logTypeId,
     notifications,
   };
   categoryPageStore.setEditingCategory(true);
@@ -270,6 +272,7 @@ function notificationsTotal(notifications: any[]) {
     const total = notifications.length;
     return `${total} notification${total === 1 ? '' : 's'}`;
   }
+
   return 'No associated notification';
 }
 
