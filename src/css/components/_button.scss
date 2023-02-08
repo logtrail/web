@@ -5,3 +5,7 @@
 .secondary-btn.q-btn--flat {
   border: 1px solid $primary;
 }
+
+.q-field--outlined.q-field--readonly .q-field__control:before {
+  border-style: solid;
+}
