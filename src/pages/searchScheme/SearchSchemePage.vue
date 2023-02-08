@@ -1,5 +1,5 @@
 <template>
-  <q-page class="logType-page full-height">
+  <q-page class="searchScheme-page full-height">
     <div class="row full-width content-center items-center q-mb-xl">
       <p class="text-h3 col-shrink q-mr-md q-mb-none">Search scheme</p>
       <q-btn
@@ -119,7 +119,7 @@
       <template v-else>
         <div class="row col-12 justify-center items-center logType-no-data">
           <div class="col-12 text-center">
-            <img src="img/empty-logType.svg" width="250" height="250" alt="">
+            <EmptySearchScheme />
             <p class="q-mt-md text-weight-bold">
               Wait! You don't have search secheme yet! Try to add new search scheme.
             </p>
@@ -141,7 +141,7 @@
 
 <script lang="ts">
 export default {
-  name: 'LogTypesPage',
+  name: 'SearchSchemePage',
 };
 </script>
 
@@ -149,6 +149,8 @@ export default {
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.min.css';
 import 'prismjs/components/prism-javascript';
+
+import EmptySearchScheme from 'components/general/imagesSvg/EmptySearchScheme.vue';
 
 import {
   ref,
@@ -261,7 +263,7 @@ $title-height: 50px + 48px; // 48px margin bottom
 
 $used-area: $header-height + $padding-y + ($title-height * 2);
 
-.logType-card-content {
+.searchScheme-card-content {
   padding: 8px;
   border: 1px solid rgba($secondary, .3);
   border-radius: 4px;
@@ -272,7 +274,7 @@ $used-area: $header-height + $padding-y + ($title-height * 2);
   border: 1px solid rgba($secondary, .3);
 }
 
-.logType-no-data {
+.searchScheme-no-data {
   height: calc(100vh - #{$used-area})!important;
 }
 </style>
