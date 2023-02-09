@@ -20,10 +20,11 @@ async function create(payload: Notification) {
  * @param queryParams: Find - Params to find notifications
  */
 async function find(queryParams: Find) {
-  const query = new URLSearchParams({ ...omitBy(queryParams, isEmpty) });
+  // @ts-ignore
+  const query = new URLSearchParams({ ...omitBy(queryParams, !(isEmpty)) });
   let url = BASE_URL;
 
-  if (!isEmpty(query)) url = `${url}?${query}`;
+  if (!isEmpty(query.toString())) url = `${url}?${query.toString()}`;
 
   // @ts-ignore
   const retData = await this.get(url);
