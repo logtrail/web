@@ -113,6 +113,7 @@ const slots = useSlots();
 const componentDefaultProps = {
   outlined: true,
   dense: true,
+  behavior: 'menu',
   'bg-color': 'white',
   'no-error-icon': true,
   'hide-bottom-space': true,
