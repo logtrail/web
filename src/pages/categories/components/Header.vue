@@ -2,7 +2,7 @@
   <div class="row full-width content-center items-center q-mb-xl">
     <p class="text-h3 col-shrink q-mr-md q-mb-none">Categories</p>
     <q-btn
-      v-if="categoryData.length"
+      v-if="props.categoryData.length"
       dense
       no-caps
       unelevated
@@ -16,21 +16,21 @@
 
 <script lang="ts">
 export default {
-  name: 'HeaderPa ge',
+  name: 'HeaderPage',
 };
 </script>
 
 <script setup lang="ts">
 
 /**
- * Define emits
+ * Define props
  */
 const props = defineProps({
-  addCategory: {
-    type: Function,
-  },
   categoryData: {
     type: Array,
+  },
+  addCategory: {
+    type: Function,
   },
 });
 </script>

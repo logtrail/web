@@ -145,13 +145,13 @@ async function getLogs(
   if (!isEmpty(previousCursor)) payload.previousCursor = previousCursor;
 
   const retData = await services.logs.search(payload);
+  logsData.value = retData;
 
   if (!isEmpty(retData)) {
     await Promise.all([
       checkStatusPreviousCursor(retData),
       checkStatusNextCursor(retData),
     ]);
-    logsData.value = retData;
 
     await nextTick();
     Prism.highlightAll();

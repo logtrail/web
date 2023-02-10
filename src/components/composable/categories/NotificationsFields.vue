@@ -1,7 +1,7 @@
 <template>
   <div class="full-width row q-col-gutter-y-md">
     <div
-      v-for="(repeatableField, index) of repeatableFields"
+      v-for="(repeatableField, index) of notifications"
       class="notification-card row full-width q-my-md"
       :key="`notification-${index}`">
       <div class="notification-fields row col-12 q-col-gutter-y-md">
@@ -11,7 +11,7 @@
           </span>
 
           <div
-            v-if="repeatableFields.length > 1"
+            v-if="notifications.length > 1"
             class="row col-shrink">
             <q-btn
               dense
@@ -67,39 +67,57 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
+import { computed, defineEmits } from 'vue';
 import { useQuasar } from 'quasar';
-import useCategoryPageStore from 'src/stores/pages/categoriesPage';
 
 const $q = useQuasar();
 
-const categoriesPageStore = useCategoryPageStore();
-
+/**
+ * Define props
+ */
 const props = defineProps({
   fieldProps: {
     type: Object,
     default: () => {},
   },
-
   notificationOptions: {
+    type: Array,
+    default: () => [],
+  },
+  notifications: {
     type: Array,
     default: () => [],
   },
 });
 
-const repeatableFields = computed(() => categoriesPageStore.newCategory.notifications);
+/**
+ * Define emit
+ */
+const emit = defineEmits(['update:notifications']);
 
-const defaultRule = computed(() => ([
-  (value: any) => !!value || 'Field is required',
-]));
+/**
+ * Computed data
+ */
+const notifications = computed({
+  get: () => props.notifications,
+  set: (notification) => emit('update:notifications', notification),
+});
 
+/**
+ * Add new notification
+ */
 function addNotificationField() {
-  categoriesPageStore.newCategory.notifications.push({
-    notificationId: '',
-    destination: '',
-  });
+  const add = { notificationId: '', destination: '' };
+  notifications.value = [...notifications.value, add];
 }
 
+/**
+ * Confirm to remove the notification
+ * @param index: number - Array index
+ */
 function removeNotification(index: number) {
   const dialogProps = {
     title: 'Confirm',
@@ -110,16 +128,13 @@ function removeNotification(index: number) {
 
   $q.dialog(dialogProps)
     .onOk(async () => {
-      const repeatableUpdated = categoriesPageStore.newCategory.notifications
+      const repeatableUpdated = notifications.value
         .filter((field, fieldIndex) => fieldIndex !== index);
 
-      categoriesPageStore.newCategory.notifications = [...repeatableUpdated];
+      notifications.value = [...repeatableUpdated];
     })
     .onCancel(() => {
       // nothing here
     });
 }
 </script>
-
-<style lang="scss">
-</style>

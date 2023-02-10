@@ -94,7 +94,7 @@
         <q-td colspan="100%">
           <div class="text-left">
             <p class="text-h6">Notifications</p>
-            <pre class="language-javascript"><code>{{ props.row.fields }}</code></pre>
+            <pre class="language-javascript"><code>{{ props.row.notifications }}</code></pre>
           </div>
         </q-td>
       </q-tr>

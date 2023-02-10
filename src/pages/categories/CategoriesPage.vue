@@ -1,8 +1,16 @@
 <template>
   <q-page class="category-page full-height">
+    <!-- MENU TO ADD / EDIT FORM -->
+    <Drawer
+      v-model:formData="formData"
+      v-model:openDrawer="openDrawer"
+      :drawerMode="drawerMode"
+      :saveFormData="saveFormData" />
+
+    <!-- HEADER PAGE -->
     <HeaderPage
-      :categoryData="categoryData"
-      :addCategory="addCategory" />
+      :addCategory="addCategory"
+      :categoryData="categoryData"  />
 
     <div class="row full-width full-height">
       <!-- SEARCH RESULT -->
@@ -38,24 +46,30 @@ import {
   ref,
   nextTick,
   onMounted,
+  reactive,
+  toRaw,
 } from 'vue';
 
 import { useQuasar } from 'quasar';
-import { isEmpty } from 'lodash';
 
 import { services } from 'src/services';
 
 import NoData from './components/NoData.vue';
 import HeaderPage from './components/Header.vue';
-import SearchResult from "./components/SearchResult.vue";
+import SearchResult from './components/SearchResult.vue';
+import Drawer from './components/Drawer.vue';
+
+import { DEFAULT_STATE } from './constants';
 
 // ------- //
 // STATE'S //
 // ------- //
 const $q = useQuasar();
-const categoryData = ref([]);
 
-const openDrawerRight = ref<boolean>(false);
+const categoryData = ref<any>([]);
+const formData = reactive({ ...DEFAULT_STATE });
+const drawerMode = ref<string>('add');
+const openDrawer = ref<boolean>(false);
 const pagination = ref({
   page: 1,
   perPage: 10,
@@ -93,10 +107,35 @@ async function getCategories() {
 }
 
 /**
- * Add new category
+ * Click to save form data
  */
-function addCategory() {
-  // categoryPageStore.setAddingCategory(true);
+async function saveFormData() {
+  if (drawerMode.value === 'add') {
+    const category = await services.categories.create(toRaw(formData));
+    categoryData.value.push(category);
+  } else {
+    const { _id: categoryId } = formData;
+    const category = await services.categories.updateById(categoryId, toRaw(formData));
+    const categoryIndex = getIndexById(categoryId);
+    categoryData.value[categoryIndex] = category;
+  }
+
+  // Clean form
+  Object.assign(formData, DEFAULT_STATE);
+  openDrawer.value = false;
+
+  // Update highligh
+  await nextTick();
+  Prism.highlightAll();
+}
+
+/**
+ * update category by id
+ * @param categoryId: string - Category id
+ */
+function addCategory(): void {
+  drawerMode.value = 'add';
+  openDrawer.value = true;
 }
 
 /**
@@ -104,26 +143,11 @@ function addCategory() {
  * @param categoryId: string - Category id
  */
 function editCategory(categoryId: string): void {
-  // const categoryDataToEdit = categoryPageStore.readCategory(categoryId);
-  //
-  // if (isEmpty(categoryDataToEdit)) return;
-  //
-  // const {
-  //   _id,
-  //   name,
-  //   level,
-  //   logTypeId,
-  //   notifications,
-  // } = categoryDataToEdit;
-  //
-  // categoryPageStore.newCategory = {
-  //   _id,
-  //   name,
-  //   level,
-  //   logTypeId,
-  //   notifications,
-  // };
-  // categoryPageStore.setEditingCategory(true);
+  const category = getCategoryById(categoryId);
+
+  Object.assign(formData, category);
+  drawerMode.value = 'edit';
+  openDrawer.value = true;
 }
 
 /**
@@ -131,21 +155,42 @@ function editCategory(categoryId: string): void {
  * @param categoryId: string - Category id
  */
 function removeCategory(categoryId: string): void {
-  // const dialogProps = {
-  //   title: 'Confirm',
-  //   message: 'Would you like to delete this category?',
-  //   cancel: true,
-  //   persistent: true,
-  // };
-  //
-  // $q.dialog(dialogProps)
-  //   .onOk(async () => {
-  //     await services.categories.deleteById(categoryId);
-  //     await categoryPageStore.deleteCategory(categoryId);
-  //   })
-  //   .onCancel(() => {
-  //     // nothing here
-  //   });
+  const dialogProps = {
+    title: 'Confirm',
+    message: 'Would you like to delete this category?',
+    cancel: true,
+    persistent: true,
+  };
+
+  $q.dialog(dialogProps)
+    .onOk(async () => {
+      await services.categories.deleteById(categoryId);
+      const categoryIndex = getIndexById(categoryId);
+      categoryData.value.splice(categoryIndex, 1);
+    })
+    .onCancel(() => {
+      // nothing here
+    });
+}
+
+/**
+ * Get category by id
+ * @param categoryId: string - Category id
+ */
+function getCategoryById(categoryId: string) {
+  return categoryData
+    .value
+    .find((item: any) => item._id === categoryId);
+}
+
+/**
+ * Get category by id
+ * @param categoryId: string - Category id
+ */
+function getIndexById(categoryId: string) {
+  return categoryData
+    .value
+    .findIndex((item: any) => item._id === categoryId);
 }
 </script>
 

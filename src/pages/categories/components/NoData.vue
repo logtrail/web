@@ -28,7 +28,7 @@ export default {
 import EmptyCategory from 'components/general/imagesSvg/EmptyCategory.vue';
 
 /**
- * Define emits
+ * Define props
  */
 const props = defineProps({
   addCategory: {
