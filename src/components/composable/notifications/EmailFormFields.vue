@@ -88,7 +88,13 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts">
+export default {
+  name: 'EmailFormFields.vue',
+};
+</script>
+
+<script setup lang="ts">
 import useNotificationPageStore from 'src/stores/pages/notificationsPage';
 
 const notificationPageStore = useNotificationPageStore();
@@ -136,12 +142,6 @@ function changeAccountType(value) {
 
   accountTypes[value]();
 }
-</script>
-
-<script>
-export default {
-  name: 'EmailFormFields.vue',
-};
 </script>
 
 <style lang="scss">

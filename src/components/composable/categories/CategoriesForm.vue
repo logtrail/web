@@ -70,13 +70,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'CategoriesForm',
 };
 </script>
 
-<script setup>
+<script setup lang="ts">
 /**
  * Impor LIBS / Components / Contants / etc..
  */
@@ -84,7 +84,7 @@ import {
   onMounted,
   ref,
   reactive,
-  computed, nextTick,
+  computed,
 } from 'vue';
 
 import { useQuasar } from 'quasar';
@@ -115,6 +115,7 @@ const searchSchemeOptions = ref([]);
 const props = defineProps({
   saveFormData: {
     type: Function,
+    required: true,
   },
   formData: {
     type: Object,
@@ -136,7 +137,7 @@ const formData = computed({
 });
 
 const defaultRule = computed(() => ([
-  (value) => !!(value && (value !== null)) || 'Field is required',
+  (value: any) => !!(value && (value !== null)) || 'Field is required',
 ]));
 
 onMounted(async () => {
@@ -165,7 +166,7 @@ onMounted(async () => {
  * @returns {Promise<void>}
  */
 async function saveCategory() {
-  const result = await refAddCategoryForm.value?.validate().then((success) => success);
+  const result = await refAddCategoryForm.value?.validate();
 
   if (!result) {
     $q.notify({

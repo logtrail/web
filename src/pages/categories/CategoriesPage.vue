@@ -38,6 +38,9 @@ export default {
 </script>
 
 <script setup lang="ts">
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.min.css';
 import 'prismjs/components/prism-javascript';
