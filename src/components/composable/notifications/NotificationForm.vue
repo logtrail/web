@@ -1,30 +1,14 @@
 <template>
   <div class="row full-width q-px-md">
-    <div class="row col-12 justify-between items-center q-mb-xl">
-      <span class="text-h6 col-grow">{{ notificationTitle }}</span>
-      <div class="col-shrink">
-        <q-btn
-          dense
-          flat
-          no-caps
-          round
-          unelevated
-          class="col"
-          icon="close"
-          @click="closeNewNotification()" />
-      </div>
-    </div>
-
     <q-form
       greedy
       class="row full-width q-mt-md"
-      ref="addNotificationForm">
+      ref="refNotificationForm">
 
       <div
-        v-if="notificationPageStore.isEditingNotification"
         class="row col-12 q-mb-md q-px-none">
         <q-checkbox
-          v-model="notificationPageStore.newNotification.enable"
+          v-model="formData.enable"
           dense
           label="Enable notification"
           size="xs" />
@@ -32,19 +16,18 @@
 
       <div class="row col-12 q-mb-md">
         <q-select
-          v-model="notificationPageStore.newNotification.type"
+          v-model="formData.type"
           v-bind="fieldDefaultProps"
           emit-value
           map-options
           class="col"
           label="Notification type"
-          :disable="notificationPageStore.isEditingNotification"
           :options="notificationTypes" />
       </div>
 
       <div class="row col-12 q-mb-md">
         <q-input
-          v-model="notificationPageStore.newNotification.name"
+          v-model="formData.name"
           v-bind="fieldDefaultProps"
           class="col"
           label="Notification name"
@@ -52,7 +35,8 @@
       </div>
 
       <EmailFormFields
-        v-if="notificationPageStore.newNotification.type === 'email'"
+        v-if="formData.type === 'email'"
+        v-model:formData="formData.options"
         :field-props="fieldDefaultProps"
         :rules="defaultRule" />
 
@@ -71,28 +55,36 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts">
+export default {
+  name: 'NotificationForm',
+};
+</script>
+
+<script setup lang="ts">
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
 import {
   defineAsyncComponent,
   ref,
   computed,
-  onMounted,
+  reactive,
 } from 'vue';
+
 import { useQuasar } from 'quasar';
 
-import useNotificationPageStore from 'src/stores/pages/notificationsPage';
+const EmailFormFields = defineAsyncComponent(() => (
+  import('components/composable/notifications/EmailFormFields.vue')
+));
 
+/**
+ * STATE AND CONSTANTS
+ * @type {QVueGlobals}
+ */
 const $q = useQuasar();
-const notificationPageStore = useNotificationPageStore();
-
-const EmailFormFields = defineAsyncComponent(() => import('components/composable/notifications/EmailFormFields.vue'));
-
 const notificationTypes = [
-  { label: 'Discord', value: 'discord' },
   { label: 'Email', value: 'email' },
-  { label: 'Slack', value: 'slack' },
-  { label: 'Telegram', value: 'telegram' },
-  { label: 'Teams', value: 'teams' },
 ];
 
 const fieldDefaultProps = {
@@ -103,81 +95,44 @@ const fieldDefaultProps = {
   'hide-bottom-space': true,
 };
 
-const currentSelection = ref('');
-const addNotificationForm = ref(null);
+const refNotificationForm = ref(null);
 
-const notificationTitle = computed(() => {
-  const { addingNotification, editingNotification } = notificationPageStore;
+/**
+ * Define props
+ */
+const props = defineProps({
+  saveFormData: {
+    type: Function,
+    default: () => '',
+  },
+  formData: {
+    type: Object,
+    default: () => reactive({}),
+  },
+});
 
-  if (addingNotification) return 'New notification';
-  if (editingNotification) return 'Edit notification';
+/**
+ * Define emit
+ */
+const emit = defineEmits(['update:formData']);
 
-  return '';
+/**
+ * Computed data
+ */
+const formData = computed({
+  get: () => props.formData,
+  set: (formData) => emit('update:formData', formData),
 });
 
 const defaultRule = computed(() => ([
-  (value) => !!value || 'Field is required',
+  (value: any) => !!value || 'Field is required',
 ]));
 
-onMounted(() => {
-  const { type: currentValueSelected } = notificationPageStore.newNotification;
-  currentSelection.value = currentValueSelected;
-});
-
-function closeNewNotification() {
-  notificationPageStore.clearNewNotification();
-  addNotificationForm.value.reset();
-}
-
-async function addNotification() {
-  const notificationHasJustCreated = await notificationPageStore.createNotification();
-
-  if (notificationHasJustCreated) {
-    $q.notify({
-      type: 'positive',
-      message: 'Done! Successfully to create notification',
-      timeout: 5000,
-    });
-
-    addNotificationForm.value.reset();
-    return;
-  }
-
-  $q.notify({
-    type: 'negative',
-    message: 'Oops! Something wrong!',
-    caption: 'Wait some seconds and try again!',
-    timeout: 5000,
-  });
-}
-
-async function editNotification() {
-  const notificationHasJustEdited = await notificationPageStore.updateNotification();
-
-  if (notificationHasJustEdited) {
-    $q.notify({
-      type: 'positive',
-      message: 'Done! Successfully to update notification',
-      timeout: 5000,
-    });
-
-    addNotificationForm.value.reset();
-    return;
-  }
-
-  $q.notify({
-    type: 'negative',
-    message: 'Oops! Something wrong!',
-    caption: 'Wait some seconds and try again!',
-    timeout: 5000,
-  });
-}
-
+/**
+ * Save data
+ */
 async function saveNotification() {
-  const { addingNotification, editingNotification } = notificationPageStore;
-  const { value: addNotificationFormReference = {} } = addNotificationForm;
-
-  const result = await addNotificationFormReference?.validate().then((success) => success);
+  const result = await refNotificationForm.value?.validate();
 
   if (!result) {
     $q.notify({
@@ -188,15 +143,9 @@ async function saveNotification() {
     return;
   }
 
-  if (addingNotification) await addNotification();
-  if (editingNotification) await editNotification();
+  await props.saveFormData();
+  await refNotificationForm.value?.resetValidation();
 }
-</script>
-
-<script>
-export default {
-  name: 'NotificationForm',
-};
 </script>
 
 <style lang="scss">

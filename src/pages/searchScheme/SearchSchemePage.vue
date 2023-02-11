@@ -1,139 +1,32 @@
 <template>
   <q-page class="searchScheme-page full-height">
-    <div class="row full-width content-center items-center q-mb-xl">
-      <p class="text-h3 col-shrink q-mr-md q-mb-none">Search scheme</p>
-      <q-btn
-        v-if="searchSchemePageStore.logTypesList.length"
-        dense
-        no-caps
-        unelevated
-        class="col-shrink btn-primary bg-primary text-white"
-        icon="add"
-        label="New Search Scheme"
-        padding="xs sm"
-        @click="addLogType()" />
-    </div>
+    <!-- MENU TO ADD / EDIT FORM -->
+    <Drawer
+      v-model:formData="formData"
+      v-model:openDrawer="openDrawer"
+      :drawerMode="drawerMode"
+      :saveFormData="saveFormData"/>
+
+    <!-- HEADER PAGE -->
+    <HeaderPage
+      :addSearchScheme="addSearchScheme"
+      :searchSchemesData="searchSchemesData"/>
 
     <div class="row full-width full-height">
-      <template v-if="searchSchemePageStore.logTypesList.length">
-        <q-table
-          v-model:pagination="pagination"
-          hide-pagination
-          class="col-12"
-          row-key="_id"
-          :columns="COLUMNS"
-          :rows="searchSchemePageStore.logTypesList">
-
-          <template v-slot:header="props">
-            <q-tr :props="props">
-              <q-th auto-width />
-              <q-th
-                v-for="col in props.cols"
-                :key="col.name"
-                :props="props">
-                {{ col.label }}
-              </q-th>
-            </q-tr>
-          </template>
-
-          <template v-slot:body="props">
-            <q-tr
-              :key="props.row._id"
-              :props="props">
-              <q-td auto-width>
-                <q-btn
-                  dense
-                  round
-                  unelevated
-                  color="info"
-                  size="sm"
-                  :icon="props.expand ? 'remove' : 'add'"
-                  @click.stop="props.expand = !props.expand" />
-              </q-td>
-              <q-td
-                v-for="col in props.cols"
-                class="cursor-pointer"
-                :key="col.name"
-                :props="props"
-                @click.stop="props.expand = !props.expand">
-                <span v-if="col.name === 'name'">{{ col.value }}</span>
-                <span v-if="col.name === 'fields'">{{ col.value }}</span>
-                <span v-if="col.name === 'created'">
-                  {{ formatDate(col.value, 'YYYY/MM/DD HH:mm:ss') }}
-                </span>
-                <div
-                  v-if="col.name === 'actions'"
-                  class="row justify-end">
-                  <q-btn
-                    dense
-                    round
-                    unelevated
-                    class="q-mr-xs"
-                    color="blue"
-                    @click.stop="editSearchSchemeById(props.row._id)">
-                    <q-icon
-                      name="edit"
-                      color="white"
-                      size="18px" />
-                  </q-btn>
-
-                  <q-btn
-                    dense
-                    round
-                    unelevated
-                    class="q-ml-xs"
-                    color="red-5"
-                    @click.stop="removeSearchSchemeById(props.row._id)">
-                    <q-icon
-                      name="delete"
-                      color="white"
-                      size="18px" />
-                  </q-btn>
-                </div>
-              </q-td>
-            </q-tr>
-
-            <q-tr
-              :key="props.row._id"
-              v-show="props.expand"
-              :props="props">
-              <q-td colspan="100%">
-                <div class="text-left">
-                  <p class="text-h6">LogType</p>
-                  <pre class="language-javascript"><code>{{ props.row.fields }}</code></pre>
-                </div>
-              </q-td>
-            </q-tr>
-          </template>
-        </q-table>
-
-        <div class="row justify-center q-mt-md full-width">
-          <q-pagination
-            v-model="pagination.page"
-            color="secondary"
-            size="md"
-            :max="pagination.total" />
-        </div>
+      <!-- SEARCH RESULT -->
+      <template v-if="searchSchemesData.length">
+        <SearchResult
+          :pagination="pagination"
+          :switchPage="switchPage"
+          :editSearchScheme="editSearchScheme"
+          :removeSearchScheme="removeSearchScheme"
+          :searchSchemesData="searchSchemesData"/>
       </template>
 
+      <!-- NO DATA -->
       <template v-else>
-        <div class="row col-12 justify-center items-center logType-no-data">
-          <div class="col-12 text-center">
-            <EmptySearchScheme />
-            <p class="q-mt-md text-weight-bold">
-              Wait! You don't have search secheme yet! Try to add new search scheme.
-            </p>
-            <q-btn
-              dense
-              no-caps
-              unelevated
-              class="col-shrink btn-primary bg-primary text-weight-bold text-white"
-              icon="add"
-              label="New search scheme"
-              padding="xs sm"
-              @click="addLogType()" />
-          </div>
-        </div>
+        <NoData
+          :addSearchScheme="addSearchScheme"/>
       </template>
     </div>
   </q-page>
@@ -146,89 +39,120 @@ export default {
 </script>
 
 <script setup lang="ts">
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.min.css';
 import 'prismjs/components/prism-javascript';
 
-import EmptySearchScheme from 'components/general/imagesSvg/EmptySearchScheme.vue';
-
 import {
   ref,
-  computed,
-  watch,
+  reactive,
+  toRaw,
   nextTick,
   onMounted,
 } from 'vue';
 
 import { useQuasar } from 'quasar';
-import { isEmpty } from 'lodash';
-import dayjs from 'dayjs';
-
 import { services } from 'src/services';
 
-import useLogTypesPageStore from 'stores/pages/logTypesPage';
-import { COLUMNS } from './contants';
+import NoData from './components/NoData.vue';
+import HeaderPage from './components/Header.vue';
+import SearchResult from './components/SearchResult.vue';
+import Drawer from './components/Drawer.vue';
 
+import { DEFAULT_STATE } from './contants';
+
+// ------- //
+// STATE'S //
+// ------- //
 const $q = useQuasar();
-const searchSchemePageStore = useLogTypesPageStore();
 
+const searchSchemesData = ref<any>([]);
+const formData = reactive({ ...DEFAULT_STATE });
+const drawerMode = ref<string>('add');
+const openDrawer = ref<boolean>(false);
 const pagination = ref({
   page: 1,
-  perPage: 5,
+  perPage: 10,
   total: 1,
 });
 
-watch(searchSchemePageStore.logTypesList, async () => {
-  await nextTick();
-  Prism.highlightAll();
+onMounted(async () => {
+  await getSearchSchemes();
 });
 
-onMounted(async () => {
+/**
+ * Switch pagination
+ * @param page
+ */
+async function switchPage(page: number) {
+  pagination.value.page = page;
+  await getSearchSchemes();
+}
+
+/**
+ * Get searchSchemes
+ * @param currentPage: number - Current page
+ */
+async function getSearchSchemes() {
   const {
-    items: searchSchemeList,
+    items: searchSchemes,
     pagination: paginationIfo,
   } = await services.searchSchemas.find(pagination.value);
 
+  searchSchemesData.value = searchSchemes;
   pagination.value.total = paginationIfo.total;
-  searchSchemePageStore.setSearchScheme(searchSchemeList);
 
   await nextTick();
   Prism.highlightAll();
-});
-
-function addLogType() {
-  searchSchemePageStore.setAddingLogType(true);
 }
 
 /**
- * Edit search scheme by id
- * @param searchSchemeId: string - Scheme id
+ * Click to save form data
  */
-function editSearchSchemeById(searchSchemeId: string): void {
-  const logTypeDataToEdit = searchSchemePageStore.readLogType(searchSchemeId);
+async function saveFormData() {
+  if (drawerMode.value === 'add') {
+    const searchScheme = await services.searchSchemas.create(toRaw(formData));
+    searchSchemesData.value.push(searchScheme);
+  } else {
+    const { _id: searchSchemeId } = formData;
+    const searchScheme = await services.searchSchemas.updateById(searchSchemeId, toRaw(formData));
+    const searchSchemeIndex = getIndexById(searchSchemeId);
+    searchSchemesData.value[searchSchemeIndex] = searchScheme;
+  }
 
-  if (isEmpty(logTypeDataToEdit)) return;
-
-  const {
-    _id,
-    name,
-    fields,
-  } = logTypeDataToEdit;
-
-  searchSchemePageStore.newLogType = {
-    name,
-    fields,
-    _id,
-  };
-
-  searchSchemePageStore.setEditingLogType(true);
+  // Clean form
+  Object.assign(formData, DEFAULT_STATE);
+  openDrawer.value = false;
 }
 
 /**
- * Remove search scheme byu id
- * @param searchSchemeId: string - Search scheme
+ * update searchScheme by id
  */
-function removeSearchSchemeById(searchSchemeId: string): void {
+function addSearchScheme(): void {
+  drawerMode.value = 'add';
+  openDrawer.value = true;
+}
+
+/**
+ * update searchScheme by id
+ * @param searchSchemeId: string - SearchScheme id
+ */
+function editSearchScheme(searchSchemeId: string): void {
+  const searchScheme = getSearchSchemeById(searchSchemeId);
+
+  Object.assign(formData, searchScheme);
+  drawerMode.value = 'edit';
+  openDrawer.value = true;
+}
+
+/**
+ * Remove searchScheme by id
+ * @param searchSchemeId: string - SearchScheme id
+ */
+function removeSearchScheme(searchSchemeId: string): void {
   const dialogProps = {
     title: 'Confirm',
     message: 'Would you like to delete this search scheme?',
@@ -239,7 +163,8 @@ function removeSearchSchemeById(searchSchemeId: string): void {
   $q.dialog(dialogProps)
     .onOk(async () => {
       await services.searchSchemas.deleteById(searchSchemeId);
-      await searchSchemePageStore.deleteLogType(searchSchemeId);
+      const searchSchemeIndex = getIndexById(searchSchemeId);
+      searchSchemesData.value.splice(searchSchemeIndex, 1);
     })
     .onCancel(() => {
       // nothing here
@@ -247,12 +172,23 @@ function removeSearchSchemeById(searchSchemeId: string): void {
 }
 
 /**
- * Format date
- * @param date: Date - Date to format
- * @param format: string - Format type
+ * Get searchScheme by id
+ * @param searchSchemeId: string - SearchScheme id
  */
-function formatDate(date: Date, format: string) {
-  return dayjs(date).format(format);
+function getSearchSchemeById(searchSchemeId: string) {
+  return searchSchemesData
+    .value
+    .find((item: any) => item._id === searchSchemeId);
+}
+
+/**
+ * Get searchScheme by id
+ * @param searchSchemeId: string - SearchScheme id
+ */
+function getIndexById(searchSchemeId: string) {
+  return searchSchemesData
+    .value
+    .findIndex((item: any) => item._id === searchSchemeId);
 }
 </script>
 

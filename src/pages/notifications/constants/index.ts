@@ -1,26 +1,38 @@
 import { QTableColumn } from 'quasar';
 
 /**
- * Columns list search scheme
+ * Columnn table categories list
  */
 export const COLUMNS: QTableColumn[] = [
   {
     name: 'name',
-    label: 'Search scheme',
+    required: true,
+    label: 'Name',
     field: 'name',
     align: 'left',
   },
   {
-    name: 'fields',
-    label: 'Fields',
-    field: 'fields',
+    name: 'type',
     align: 'left',
-    format: (val) => `${val.length} field${val.length > 1 ? 's' : ''}`,
+    label: 'Type',
+    field: 'type',
+  },
+  {
+    name: 'notificationAccount',
+    align: 'left',
+    label: 'Notification account',
+    field: (row: any) => row.options.user,
+  },
+  {
+    name: 'enable',
+    align: 'left',
+    label: 'Status',
+    field: 'enable',
   },
   {
     name: 'created',
     align: 'left',
-    label: 'Created At',
+    label: 'Creat At',
     field: 'created',
   },
   {
@@ -36,6 +48,8 @@ export const COLUMNS: QTableColumn[] = [
  */
 export const DEFAULT_STATE = {
   _id: '',
+  type: 'email',
+  enable: true,
   name: '',
-  fields: [],
+  options: {},
 };

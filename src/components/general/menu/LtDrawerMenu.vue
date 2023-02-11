@@ -4,16 +4,16 @@
       v-for="item in props.items"
       v-ripple
       exact
-      :key="item.id"
-      :to="item.route">
+      :key="item?.id"
+      :to="item?.route">
       <q-item-section avatar>
         <q-icon
           color="dark"
-          :name="item.icon" />
+          :name="item?.icon" />
       </q-item-section>
 
       <q-item-section>
-        {{ item.label }}
+        {{ item?.label }}
       </q-item-section>
     </q-item>
   </q-list>

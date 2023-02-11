@@ -14,8 +14,9 @@ export interface OperationOptions {
  */
 export interface FieldName extends QSelectOption {
   value: string;
-  id: string;
+  id?: string;
   categoryId?: string;
+  bucketName: string;
 }
 
 /**

@@ -1,99 +1,32 @@
 <template>
   <q-page class="notifications-page full-height">
-    <div class="row full-width content-center items-center q-mb-xl">
-      <p class="text-h3 col-shrink q-mr-md q-mb-none">Notifications</p>
-      <q-btn
-        v-if="notificationPageStore.notificationsList.length"
-        dense
-        no-caps
-        unelevated
-        class="col-shrink btn-primary bg-primary text-white"
-        icon="add"
-        label="New notification"
-        padding="xs sm"
-        @click="addNotification()" />
-    </div>
+    <!-- MENU TO ADD / EDIT FORM -->
+    <Drawer
+      v-model:formData="formData"
+      v-model:openDrawer="openDrawer"
+      :drawerMode="drawerMode"
+      :saveFormData="saveFormData"/>
+
+    <!-- HEADER PAGE -->
+    <HeaderPage
+      :addNotification="addNotification"
+      :notificationData="notificationsData"/>
 
     <div class="row full-width full-height">
-      <template v-if="notificationPageStore.notificationsList.length">
-        <q-table
-          v-model:pagination="pagination"
-          hide-pagination
-          class="col-12"
-          row-key="name"
-          :columns="columns"
-          :filter="filter"
-          :rows="notificationPageStore.notificationsList">
-
-          <template v-slot:body-cell-enable="props">
-            <q-td :props="props">
-              <q-icon
-                name="fiber_manual_record"
-                :color="props.row.enable ? 'green' : 'red'" />
-                {{ props.row.enable ? 'Enable' : 'Disable' }}
-            </q-td>
-          </template>
-
-          <template v-slot:body-cell-actions="props">
-            <q-td :props="props">
-              <div class="row justify-end">
-                <q-btn
-                  dense
-                  round
-                  unelevated
-                  class="q-mr-xs"
-                  color="blue"
-                  @click="editNotification(props.row._id)">
-                  <q-icon
-                    name="edit"
-                    color="white"
-                    size="18px" />
-                </q-btn>
-
-                <q-btn
-                  dense
-                  round
-                  unelevated
-                  class="q-ml-xs"
-                  color="red-5"
-                  @click="removeNotification(props.row._id)">
-                  <q-icon
-                    name="delete"
-                    color="white"
-                    size="18px" />
-                </q-btn>
-              </div>
-            </q-td>
-          </template>
-        </q-table>
-
-        <div class="row justify-center q-mt-md full-width">
-          <q-pagination
-            v-model="pagination.page"
-            color="secondary"
-            size="md"
-            :max="pagesNumber" />
-        </div>
+      <template v-if="notificationsData.length">
+        <!-- SEARCH RESULT -->
+        <SearchResult
+          :pagination="pagination"
+          :switchPage="switchPage"
+          :editNotification="editNotification"
+          :removeNotification="removeNotification"
+          :notificationsData="notificationsData"/>
       </template>
 
+      <!-- NO DATA -->
       <template v-else>
-        <div class="row col-12 justify-center items-center notification-no-data">
-          <div class="col-12 text-center">
-            <EmptyNotification />
-            <p class="q-mt-md text-weight-bold">
-              Wait! You don't have notifications accounts yet! Try to add new notification accounts.
-            </p>
-            <q-btn
-              dense
-              no-caps
-              unelevated
-              class="col-shrink btn-primary bg-primary text-weight-bold text-white"
-              icon="add"
-              label="New notification"
-              padding="xs sm"
-              @click="addNotification()" />
-          </div>
-        </div>
+        <NoData
+          :addNotification="addNotification"/>
       </template>
     </div>
   </q-page>
@@ -106,98 +39,112 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
+import {
+  ref,
+  nextTick,
+  onMounted,
+  reactive,
+  toRaw,
+} from 'vue';
+
 import { useQuasar } from 'quasar';
-import { isEmpty } from 'lodash';
-
-import EmptyNotification from 'components/general/imagesSvg/EmptyNotification.vue';
-
 import { services } from 'src/services';
 
-import useNotificationPageStore from 'stores/pages/notificationsPage';
-import { ColumnTypes } from './types';
+import NoData from './components/NoData.vue';
+import HeaderPage from './components/Header.vue';
+import SearchResult from './components/SearchResult.vue';
+import Drawer from './components/Drawer.vue';
 
+import { DEFAULT_STATE } from './constants';
+
+// ------- //
+// STATE'S //
+// ------- //
 const $q = useQuasar();
-const notificationPageStore = useNotificationPageStore();
 
-const filter = ref('');
-
-const addNotification = () => {
-  notificationPageStore.setAddingNotification(true);
-};
-
+const notificationsData = ref<any>([]);
+const formData = reactive({ ...DEFAULT_STATE });
+const drawerMode = ref<string>('add');
+const openDrawer = ref<boolean>(false);
 const pagination = ref({
   page: 1,
-  perPage: 5,
-});
-
-const pagesNumber = computed(() => {
-  const { notificationsList = [] } = notificationPageStore;
-  return Math.ceil(notificationsList.length / pagination.value.rowsPerPage);
+  perPage: 10,
+  total: 1,
 });
 
 onMounted(async () => {
-  const { items: notificationList } = await services.notifications.find(pagination.value);
-  notificationPageStore.setNotifications(notificationList);
+  await getNotifications();
 });
 
-const columns: ColumnTypes[] = [
-  {
-    name: 'name',
-    required: true,
-    label: 'Name',
-    field: 'name',
-    align: 'left',
-  },
-  {
-    name: 'type',
-    align: 'left',
-    label: 'Type',
-    field: 'type',
-  },
-  {
-    name: 'notificationAccount',
-    align: 'left',
-    label: 'Notification account',
-    field: (row: any) => row.options.user,
-  },
-  {
-    name: 'enable',
-    align: 'left',
-    label: 'Status',
-    field: 'enable',
-  },
-  {
-    name: 'actions',
-    align: 'right',
-    label: 'Actions',
-    field: 'actions',
-  },
-];
-
-function editNotification(notificationId: string): void {
-  const notificationDataToEdit = notificationPageStore.readNotification(notificationId);
-
-  if (isEmpty(notificationDataToEdit)) return;
-
-  const {
-    _id,
-    enable,
-    name,
-    options,
-    type,
-  } = notificationDataToEdit;
-
-  notificationPageStore.newNotification = {
-    _id,
-    enable,
-    name,
-    options,
-    type,
-  };
-  notificationPageStore.setEditingNotification(true);
+/**
+ * Switch pagination
+ * @param page
+ */
+async function switchPage(page: number) {
+  pagination.value.page = page;
+  await getNotifications();
 }
 
+/**
+ * Get notifications
+ * @param currentPage: number - Current page
+ */
+async function getNotifications() {
+  const {
+    items: notifications,
+    pagination: paginationIfo,
+  } = await services.notifications.find(pagination.value);
+
+  notificationsData.value = notifications;
+  pagination.value.total = paginationIfo.total;
+}
+
+/**
+ * Click to save form data
+ */
+async function saveFormData() {
+  if (drawerMode.value === 'add') {
+    const notification = await services.notifications.create(toRaw(formData));
+    notificationsData.value.push(notification);
+  } else {
+    const { _id: notificationId } = formData;
+    const notification = await services.notifications.updateById(notificationId, toRaw(formData));
+    const notificationIndex = getIndexById(notificationId);
+    notificationsData.value[notificationIndex] = notification;
+  }
+
+  // Clean form
+  Object.assign(formData, DEFAULT_STATE);
+  openDrawer.value = false;
+}
+
+/**
+ * update notification by id
+ */
+function addNotification(): void {
+  drawerMode.value = 'add';
+  openDrawer.value = true;
+}
+
+/**
+ * update notification by id
+ * @param notificationId: string - Notification id
+ */
+function editNotification(notificationId: string): void {
+  const notification = getNotificationById(notificationId);
+
+  Object.assign(formData, notification);
+  drawerMode.value = 'edit';
+  openDrawer.value = true;
+}
+
+/**
+ * Remove notification by id
+ * @param notificationId: string - Notification id
+ */
 function removeNotification(notificationId: string): void {
   const dialogProps = {
     title: 'Confirm',
@@ -209,11 +156,32 @@ function removeNotification(notificationId: string): void {
   $q.dialog(dialogProps)
     .onOk(async () => {
       await services.notifications.deleteById(notificationId);
-      await notificationPageStore.deleteNotification(notificationId);
+      const notificationIndex = getIndexById(notificationId);
+      notificationsData.value.splice(notificationIndex, 1);
     })
     .onCancel(() => {
       // nothing here
     });
+}
+
+/**
+ * Get notification by id
+ * @param notificationId: string - Notification id
+ */
+function getNotificationById(notificationId: string) {
+  return notificationsData
+    .value
+    .find((item: any) => item._id === notificationId);
+}
+
+/**
+ * Get notification by id
+ * @param notificationId: string - Notification id
+ */
+function getIndexById(notificationId: string) {
+  return notificationsData
+    .value
+    .findIndex((item: any) => item._id === notificationId);
 }
 </script>
 
@@ -236,6 +204,6 @@ $used-area: $header-height + $padding-y + ($title-height * 2);
 }
 
 .notification-no-data {
-  height: calc(100vh - #{$used-area})!important;
+  height: calc(100vh - #{$used-area}) !important;
 }
 </style>

@@ -1,37 +1,22 @@
 <template>
   <div class="row full-width q-pa-md">
-    <div class="row col-12 justify-between items-center q-mb-xl">
-      <span class="text-h6 col-grow">{{ categoryTitle }}</span>
-      <div class="col-shrink">
-        <q-btn
-          dense
-          flat
-          no-caps
-          round
-          unelevated
-          class="col"
-          icon="close"
-          @click="closeNewCategory()" />
-      </div>
-    </div>
-
     <q-form
       greedy
       class="row full-width q-mt-md"
-      ref="addCategoryForm">
+      ref="refAddCategoryForm">
 
       <div class="row col-12 q-mb-md">
         <q-input
-          v-model="categoriesPageStore.newCategory.name"
+          v-model="formData.name"
           v-bind="fieldDefaultProps"
           class="col"
           label="Category name"
-          :rules="defaultRule" />
+          :rules="defaultRule"/>
       </div>
 
       <div class="row col-12 q-mb-md">
         <q-select
-          v-model="categoriesPageStore.newCategory.level"
+          v-model="formData.level"
           v-bind="fieldDefaultProps"
           emit-value
           map-options
@@ -55,21 +40,22 @@
 
       <div class="row col-12 q-mb-md">
         <q-select
-          v-model="categoriesPageStore.newCategory.logTypeId"
+          v-model="formData.logTypeId"
           v-bind="fieldDefaultProps"
           emit-value
           map-options
           class="col"
           label="Search scheme"
           :options="searchSchemeOptions"
-          :rules="defaultRule" />
+          :rules="defaultRule"/>
       </div>
 
       <NotificationsFields
+        v-model:notifications="formData.notifications"
         :field-props="fieldDefaultProps"
-        :notificationOptions="notificationOptions" />
+        :notificationOptions="notificationOptions"/>
 
-      <q-separator class="full-width q-mt-lg" />
+      <q-separator class="full-width q-mt-lg"/>
 
       <div class="row col-12 q-mt-lg">
         <q-btn
@@ -78,34 +64,39 @@
           color="primary"
           class="col-shrink"
           label="Save"
-          @click="saveCategory" />
+          @click="saveCategory"/>
       </div>
     </q-form>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'CategoriesForm',
 };
 </script>
 
-<script setup>
+<script setup lang="ts">
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
 import {
   onMounted,
   ref,
+  reactive,
   computed,
 } from 'vue';
 
 import { useQuasar } from 'quasar';
 import { services } from 'src/services';
-import useCategoryPageStore from 'src/stores/pages/categoriesPage';
 import { LEVEL_OPTIONS } from 'src/shared/constants';
 import NotificationsFields from 'components/composable/categories/NotificationsFields.vue';
 
+/**
+ * STATE AND CONSTANTS
+ * @type {QVueGlobals}
+ */
 const $q = useQuasar();
-const categoriesPageStore = useCategoryPageStore();
-
 const fieldDefaultProps = {
   outlined: true,
   dense: true,
@@ -114,21 +105,39 @@ const fieldDefaultProps = {
   'hide-bottom-space': true,
 };
 
-const addCategoryForm = ref(null);
+const refAddCategoryForm = ref(null);
 const notificationOptions = ref([]);
 const searchSchemeOptions = ref([]);
 
-const categoryTitle = computed(() => {
-  const { addingCategory, editingCategory } = categoriesPageStore;
+/**
+ * Define props
+ */
+const props = defineProps({
+  saveFormData: {
+    type: Function,
+    required: true,
+  },
+  formData: {
+    type: Object,
+    default: () => reactive({}),
+  },
+});
 
-  if (addingCategory) return 'New Category';
-  if (editingCategory) return 'Edit Category';
+/**
+ * Define emit
+ */
+const emit = defineEmits(['update:formData']);
 
-  return '';
+/**
+ * Computed data
+ */
+const formData = computed({
+  get: () => props.formData,
+  set: (formData) => emit('update:formData', formData),
 });
 
 const defaultRule = computed(() => ([
-  (value) => !!value || 'Field is required',
+  (value: any) => !!(value && (value !== null)) || 'Field is required',
 ]));
 
 onMounted(async () => {
@@ -152,60 +161,12 @@ onMounted(async () => {
   ));
 });
 
-function closeNewCategory() {
-  categoriesPageStore.clearNewCategory();
-  addCategoryForm.value.reset();
-}
-
-async function addCategory() {
-  const categoryHasJustCreated = await categoriesPageStore.createCategory();
-
-  if (categoryHasJustCreated) {
-    $q.notify({
-      type: 'positive',
-      message: 'Done! Successfully to create category',
-      timeout: 5000,
-    });
-
-    addCategoryForm.value.reset();
-    return;
-  }
-
-  $q.notify({
-    type: 'negative',
-    message: 'Oops! Something wrong!',
-    caption: 'Wait some seconds and try again!',
-    timeout: 5000,
-  });
-}
-
-async function editCategory() {
-  const categoryHasJustEdited = await categoriesPageStore.updateCategory();
-
-  if (categoryHasJustEdited) {
-    $q.notify({
-      type: 'positive',
-      message: 'Done! Successfully to update categories',
-      timeout: 5000,
-    });
-
-    addCategoryForm.value.reset();
-    return;
-  }
-
-  $q.notify({
-    type: 'negative',
-    message: 'Oops! Something wrong!',
-    caption: 'Wait some seconds and try again!',
-    timeout: 5000,
-  });
-}
-
+/**
+ * Save new category
+ * @returns {Promise<void>}
+ */
 async function saveCategory() {
-  const { addingCategory, editingCategory, newCategory } = categoriesPageStore;
-  const { value: addCategoryFormReference = {} } = addCategoryForm;
-
-  const result = await addCategoryFormReference?.validate().then((success) => success);
+  const result = await refAddCategoryForm.value?.validate();
 
   if (!result) {
     $q.notify({
@@ -216,8 +177,8 @@ async function saveCategory() {
     return;
   }
 
-  if (addingCategory) await addCategory();
-  if (editingCategory) await editCategory();
+  await props.saveFormData();
+  await refAddCategoryForm.value?.resetValidation();
 }
 </script>
 

@@ -41,3 +41,14 @@ export const COLUMNS: QTableColumn[] = [
     field: 'actions',
   },
 ];
+
+/**
+ * Default state
+ */
+export const DEFAULT_STATE = {
+  _id: '',
+  name: '',
+  level: '',
+  logTypeId: '',
+  notifications: [],
+};

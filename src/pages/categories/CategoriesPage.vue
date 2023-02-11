@@ -1,153 +1,31 @@
 <template>
   <q-page class="category-page full-height">
-    <div class="row full-width content-center items-center q-mb-xl">
-      <p class="text-h3 col-shrink q-mr-md q-mb-none">Categories</p>
-      <q-btn
-        v-if="categoryPageStore.categoriesList.length"
-        dense
-        no-caps
-        unelevated
-        class="col-shrink btn-primary bg-primary text-white"
-        icon="add"
-        label="New category"
-        padding="xs sm"
-        @click="addCategory()" />
-    </div>
+    <!-- MENU TO ADD / EDIT FORM -->
+    <Drawer
+      v-model:formData="formData"
+      v-model:openDrawer="openDrawer"
+      :drawerMode="drawerMode"
+      :saveFormData="saveFormData" />
+
+    <!-- HEADER PAGE -->
+    <HeaderPage
+      :addCategory="addCategory"
+      :categoryData="categoryData"  />
 
     <div class="row full-width full-height">
-      <template v-if="categoryPageStore.categoriesList.length">
-        <q-table
-          v-model:pagination="pagination"
-          hide-pagination
-          class="col-12"
-          row-key="_id"
-          :columns="COLUMNS"
-          :rows="categoryPageStore.categoriesList">
-          <template v-slot:header="props">
-            <q-tr :props="props">
-              <q-th auto-width />
-              <q-th
-                v-for="col in props.cols"
-                :key="col.name"
-                :props="props">
-                {{ col.label }}
-              </q-th>
-            </q-tr>
-          </template>
+      <!-- SEARCH RESULT -->
+      <SearchResult
+        v-if="categoryData.length"
+        :pagination="pagination"
+        :switchPage="switchPage"
+        :editCategory="editCategory"
+        :removeCategory="removeCategory"
+        :categoryData="categoryData" />
 
-          <template v-slot:body="props">
-            <q-tr
-              :key="props.row._id"
-              :props="props">
-              <q-td auto-width>
-                <q-btn
-                  dense
-                  round
-                  unelevated
-                  color="info"
-                  size="sm"
-                  :icon="props.expand ? 'remove' : 'add'"
-                  @click.stop="props.expand = !props.expand" />
-              </q-td>
-              <q-td
-                v-for="col in props.cols"
-                class="cursor-pointer"
-                :key="col.name"
-                :props="props"
-                @click.stop="props.expand = !props.expand">
-                <span v-if="col.name === 'name'">{{ col.value }}</span>
-
-                <q-chip
-                  v-if="col.name === 'level'"
-                  :color="getLevelColorByName(col.value) || 'grey-4'">
-                  {{ getLevelNameByName(col.value) }}
-                </q-chip>
-
-                <span v-if="col.name === 'logTypeName'">
-                  {{ col.value }}
-                </span>
-
-                <span v-if="col.name === 'notifications'">
-                  {{ notificationsTotal(col.value) }}
-                </span>
-
-                <span v-if="col.name === 'created'">
-                  {{ formatDate(col.value, 'YYYY/MM/DD HH:mm:ss') }}
-                </span>
-                <div
-                  v-if="col.name === 'actions'"
-                  class="row justify-end">
-                  <q-btn
-                    dense
-                    round
-                    unelevated
-                    class="q-mr-xs"
-                    color="blue"
-                    @click.stop="editCategory(props.row._id)">
-                    <q-icon
-                      name="edit"
-                      color="white"
-                      size="18px" />
-                  </q-btn>
-
-                  <q-btn
-                    dense
-                    round
-                    unelevated
-                    class="q-ml-xs"
-                    color="red-5"
-                    @click.stop="removeCategory(props.row._id)">
-                    <q-icon
-                      name="delete"
-                      color="white"
-                      size="18px" />
-                  </q-btn>
-                </div>
-
-              </q-td>
-            </q-tr>
-
-            <q-tr
-              :key="props.row._id"
-              v-show="props.expand"
-              :props="props">
-              <q-td colspan="100%">
-                <div class="text-left">
-                  <p class="text-h6">Notifications</p>
-                  <pre class="language-javascript"><code>{{ props.row.fields }}</code></pre>
-                </div>
-              </q-td>
-            </q-tr>
-          </template>
-        </q-table>
-
-        <div class="row justify-center q-mt-md full-width">
-          <q-pagination
-            v-model="pagination.page"
-            color="secondary"
-            size="md"
-            :max="pagination.total" />
-        </div>
-      </template>
-
+      <!-- NO DATA -->
       <template v-else>
-        <div class="row col-12 justify-center items-center category-no-data">
-          <div class="col-12 text-center">
-            <EmptyCategory />
-            <p class="q-mt-md text-weight-bold">
-              Wait! You don't have categories yet! Try to add new categories.
-            </p>
-            <q-btn
-              dense
-              no-caps
-              unelevated
-              class="col-shrink btn-primary bg-primary text-weight-bold text-white"
-              icon="add"
-              label="New category"
-              padding="xs sm"
-              @click="addCategory()" />
-          </div>
-        </div>
+        <NoData
+          :addCategory="addCategory" />
       </template>
     </div>
   </q-page>
@@ -160,88 +38,125 @@ export default {
 </script>
 
 <script setup lang="ts">
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.min.css';
 import 'prismjs/components/prism-javascript';
 
-import EmptyCategory from 'components/general/imagesSvg/EmptyCategory.vue';
-
 import {
   ref,
-  computed,
-  watch,
   nextTick,
   onMounted,
+  reactive,
+  toRaw,
 } from 'vue';
 
 import { useQuasar } from 'quasar';
-import { isEmpty } from 'lodash';
 
 import { services } from 'src/services';
 
-import { formatDate } from 'src/shared/helpers';
-import { LEVEL_OPTIONS } from 'src/shared/constants';
+import NoData from './components/NoData.vue';
+import HeaderPage from './components/Header.vue';
+import SearchResult from './components/SearchResult.vue';
+import Drawer from './components/Drawer.vue';
 
-import useCategoriesPageStore from 'stores/pages/categoriesPage';
+import { DEFAULT_STATE } from './constants';
 
-import { COLUMNS } from './constants';
-
+// ------- //
+// STATE'S //
+// ------- //
 const $q = useQuasar();
-const categoryPageStore = useCategoriesPageStore();
 
-const filter = ref('');
-
+const categoryData = ref<any>([]);
+const formData = reactive({ ...DEFAULT_STATE });
+const drawerMode = ref<string>('add');
+const openDrawer = ref<boolean>(false);
 const pagination = ref({
   page: 1,
   perPage: 10,
   total: 1,
 });
 
-watch(categoryPageStore.categoriesList, async () => {
-  await nextTick();
-  Prism.highlightAll();
+onMounted(async () => {
+  await getCategories();
 });
 
-onMounted(async () => {
+/**
+ * Switch pagination
+ * @param page
+ */
+async function switchPage(page: number) {
+  pagination.value.page = page;
+  await getCategories();
+}
+
+/**
+ * Get categories
+ * @param currentPage: number - Current page
+ */
+async function getCategories() {
   const {
-    items: categoriesList,
+    items: categories,
     pagination: paginationIfo,
   } = await services.categories.find(pagination.value);
 
-  categoryPageStore.setCategories(categoriesList);
+  categoryData.value = categories;
   pagination.value.total = paginationIfo.total;
 
   await nextTick();
   Prism.highlightAll();
-});
-
-function addCategory() {
-  categoryPageStore.setAddingCategory(true);
 }
 
+/**
+ * Click to save form data
+ */
+async function saveFormData() {
+  if (drawerMode.value === 'add') {
+    const category = await services.categories.create(toRaw(formData));
+    categoryData.value.push(category);
+  } else {
+    const { _id: categoryId } = formData;
+    const category = await services.categories.updateById(categoryId, toRaw(formData));
+    const categoryIndex = getIndexById(categoryId);
+    categoryData.value[categoryIndex] = category;
+  }
+
+  // Clean form
+  Object.assign(formData, DEFAULT_STATE);
+  openDrawer.value = false;
+
+  // Update highligh
+  await nextTick();
+  Prism.highlightAll();
+}
+
+/**
+ * update category by id
+ * @param categoryId: string - Category id
+ */
+function addCategory(): void {
+  drawerMode.value = 'add';
+  openDrawer.value = true;
+}
+
+/**
+ * update category by id
+ * @param categoryId: string - Category id
+ */
 function editCategory(categoryId: string): void {
-  const categoryDataToEdit = categoryPageStore.readCategory(categoryId);
+  const category = getCategoryById(categoryId);
 
-  if (isEmpty(categoryDataToEdit)) return;
-
-  const {
-    _id,
-    name,
-    level,
-    logTypeId,
-    notifications,
-  } = categoryDataToEdit;
-
-  categoryPageStore.newCategory = {
-    _id,
-    name,
-    level,
-    logTypeId,
-    notifications,
-  };
-  categoryPageStore.setEditingCategory(true);
+  Object.assign(formData, category);
+  drawerMode.value = 'edit';
+  openDrawer.value = true;
 }
 
+/**
+ * Remove category by id
+ * @param categoryId: string - Category id
+ */
 function removeCategory(categoryId: string): void {
   const dialogProps = {
     title: 'Confirm',
@@ -253,40 +168,33 @@ function removeCategory(categoryId: string): void {
   $q.dialog(dialogProps)
     .onOk(async () => {
       await services.categories.deleteById(categoryId);
-      await categoryPageStore.deleteCategory(categoryId);
+      const categoryIndex = getIndexById(categoryId);
+      categoryData.value.splice(categoryIndex, 1);
     })
     .onCancel(() => {
       // nothing here
     });
 }
 
-function getLevelNameByName(name: string) {
-  const { label: currentLevelName } = LEVEL_OPTIONS
-    .find((levelOption) => levelOption.value === name) || {};
-
-  return currentLevelName;
-}
-
-function notificationsTotal(notifications: any[]) {
-  if (notifications) {
-    const total = notifications.length;
-    return `${total} notification${total === 1 ? '' : 's'}`;
-  }
-
-  return 'No associated notification';
+/**
+ * Get category by id
+ * @param categoryId: string - Category id
+ */
+function getCategoryById(categoryId: string) {
+  return categoryData
+    .value
+    .find((item: any) => item._id === categoryId);
 }
 
 /**
- * Get color by level
- * @param level: string - Level name
+ * Get category by id
+ * @param categoryId: string - Category id
  */
-function getLevelColorByName(level: string) {
-  const { color: currentLevelOptionColor } = LEVEL_OPTIONS
-    .find((levelOption) => levelOption.value === level) || {};
-
-  return currentLevelOptionColor;
+function getIndexById(categoryId: string) {
+  return categoryData
+    .value
+    .findIndex((item: any) => item._id === categoryId);
 }
-
 </script>
 
 <style lang="scss">

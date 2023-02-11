@@ -15,7 +15,7 @@ import { searchSchemasModule } from './searchSchemas';
 
 const baseURL = process?.env?.SERVER_URI
   ? process?.env?.SERVER_URI
-  : 'https://7a03-2804-1b0-1403-394c-af33-699e-7f70-fadf.sa.ngrok.io/v1';
+  : 'http://localhost:3005/v1';
 
 /**
  * client http
@@ -26,6 +26,7 @@ const clientHttp = Axios.create({ baseURL });
  * Interceptors HTTP
  */
 clientHttp.interceptors.request.use((request: AxiosRequestConfig) => {
+  // get token by store
   const tokenJwt = 'My token';
   request.headers.common.Authorization = tokenJwt;
   request.headers.common['ngrok-skip-browser-warning'] = true;
@@ -42,6 +43,8 @@ clientHttp.interceptors.request.use((request: AxiosRequestConfig) => {
  * Export modules for service
  */
 export const services = {
+  clientHttp,
+
   categories: categoriesModule.apply(clientHttp),
   logs: logsModule.apply(clientHttp),
   management: managementModule.apply(clientHttp),
