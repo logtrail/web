@@ -8,17 +8,17 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/categories',
-    component: () => import('layouts/CategoriesLayout.vue'),
+    component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/categories/CategoriesPage.vue') }],
   },
   {
     path: '/searchscheme',
-    component: () => import('layouts/SearchSchemeLayout.vue'),
+    component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/searchScheme/SearchSchemePage.vue') }],
   },
   {
     path: '/notifications',
-    component: () => import('layouts/NotificationsLayout.vue'),
+    component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/notifications/NotificationsPage.vue') }],
   },
   {

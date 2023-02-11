@@ -1,9 +1,10 @@
 <template>
   <div class="full-width row q-col-gutter-y-md">
     <div
-      v-for="(repeatableField, index) of repeatableFields"
+      v-for="(repeatableField, index) of formData"
       class="logtype-card row full-width q-my-md"
       :key="`logTypeTransform-${index}`">
+
       <div class="logtype-fields row col-12 q-col-gutter-y-md">
         <div class="row col-12 justify-between items-center">
           <span class="col-grow text-weight-bold">
@@ -11,7 +12,7 @@
           </span>
 
           <div
-            v-if="repeatableFields.length > 1"
+            v-if="formData.length > 1"
             class="row col-shrink">
             <q-btn
               dense
@@ -82,27 +83,24 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'LogTypeFields',
 };
 </script>
 
-<script setup>
-import { onMounted, computed } from 'vue';
+<script setup lang="ts">
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
+import { computed, reactive } from 'vue';
 import { useQuasar } from 'quasar';
 
-import useLogTypePageStore from 'src/stores/pages/logTypesPage';
-
+/**
+ * STATE AND CONSTANTS
+ * @type {QVueGlobals}
+ */
 const $q = useQuasar();
-const logTypePageStore = useLogTypePageStore();
-
-const props = defineProps({
-  fieldProps: {
-    type: Object,
-    default: () => {},
-  },
-});
 
 const typesFromLogType = [
   { label: 'String', value: 'stringsBucket' },
@@ -118,35 +116,62 @@ const fromTypes = [
   { label: 'Boolean', value: 'boolean' },
 ];
 
-const repeatableFields = computed(() => logTypePageStore.newLogType.fields);
+/**
+ * Define props
+ */
+const props = defineProps({
+  fieldProps: {
+    type: Object,
+    default: () => {},
+  },
+  formData: {
+    type: Array,
+    default: () => reactive([]),
+  },
+});
+
+/**
+ * Define emit
+ */
+const emit = defineEmits(['update:formData']);
+
+/**
+ * Computed data
+ */
+const formData = computed({
+  get: () => props.formData,
+  set: (formData) => emit('update:formData', formData),
+});
 
 const defaultRule = computed(() => ([
-  (value) => !!value || 'Field is required',
+  (value: any) => !!value || 'Field is required',
 ]));
 
 function addLogTypeField() {
-  logTypePageStore.newLogType.fields.push({
+  const newScheme = {
     from: '',
     to: '',
     type: null,
     fromType: '',
-  });
+  };
+
+  formData.value = [...formData.value, newScheme];
 }
 
-function removeLogTypeField(index) {
+function removeLogTypeField(index: number) {
   const dialogProps = {
     title: 'Confirm',
-    message: 'Would you like to delete this search sheme?',
+    message: 'Would you like to delete this search scheme?',
     cancel: true,
     persistent: true,
   };
 
   $q.dialog(dialogProps)
     .onOk(async () => {
-      const repeatableUpdated = logTypePageStore.newLogType.fields
+      const repeatableUpdated = formData.value
         .filter((field, fieldIndex) => fieldIndex !== index);
 
-      logTypePageStore.newLogType.fields = [...repeatableUpdated];
+      formData.value = repeatableUpdated;
     })
     .onCancel(() => {
       // nothing here

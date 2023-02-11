@@ -1,28 +1,13 @@
 <template>
   <div class="row full-width q-pa-md">
-    <div class="row col-12 justify-between items-center q-mb-xl">
-      <span class="text-h6 col-grow">{{ searchSchemeTitle }}</span>
-      <div class="col-shrink">
-        <q-btn
-          dense
-          flat
-          no-caps
-          round
-          unelevated
-          class="col"
-          icon="close"
-          @click="closeNewLogType()" />
-      </div>
-    </div>
-
     <q-form
       greedy
       class="row full-width q-mt-md"
-      ref="addLogTypeForm">
+      ref="refLogTypeForm">
 
       <div class="row col-12 q-mb-md">
         <q-input
-          v-model="logTypePageStore.newLogType.name"
+          v-model="formData.name"
           v-bind="fieldDefaultProps"
           class="col"
           label="Search scheme name"
@@ -30,6 +15,7 @@
       </div>
 
       <LogTypeFields
+        v-model:formData="formData.fields"
         :field-props="fieldDefaultProps"
         :rules="defaultRule" />
 
@@ -42,33 +28,37 @@
           color="primary"
           class="col-shrink"
           label="Save"
-          @click="saveLogType" />
+          @click="saveSearchScheme" />
       </div>
     </q-form>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'LogTypesForm',
 };
 </script>
 
-<script setup>
+<script setup lang="ts">
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
 import {
-  // defineAsyncComponent,
   ref,
   computed,
-  onMounted,
+  reactive,
 } from 'vue';
-import { useQuasar } from 'quasar';
 
-import useLogTypePageStore from 'src/stores/pages/logTypesPage';
+import { useQuasar } from 'quasar';
 
 import LogTypeFields from 'components/composable/logTypes/LogTypeFields.vue';
 
+/**
+ * STATE AND CONSTANTS
+ * @type {QVueGlobals}
+ */
 const $q = useQuasar();
-const logTypePageStore = useLogTypePageStore();
 
 const fieldDefaultProps = {
   outlined: true,
@@ -78,81 +68,44 @@ const fieldDefaultProps = {
   'hide-bottom-space': true,
 };
 
-const currentSelection = ref('');
-const addLogTypeForm = ref(null);
+const refLogTypeForm = ref(null);
 
-const searchSchemeTitle = computed(() => {
-  const { addingLogType, editingLogType } = logTypePageStore;
+/**
+ * Define props
+ */
+const props = defineProps({
+  saveFormData: {
+    type: Function,
+    default: () => '',
+  },
+  formData: {
+    type: Object,
+    default: () => reactive({}),
+  },
+});
 
-  if (addingLogType) return 'New Search Scheme';
-  if (editingLogType) return 'Edit Search Scheme';
+/**
+ * Define emit
+ */
+const emit = defineEmits(['update:formData']);
 
-  return '';
+/**
+ * Computed data
+ */
+const formData = computed({
+  get: () => props.formData,
+  set: (formData) => emit('update:formData', formData),
 });
 
 const defaultRule = computed(() => ([
-  (value) => !!value || 'Field is required',
+  (value: any) => !!value || 'Field is required',
 ]));
 
-onMounted(() => {
-  const { type: currentValueSelected } = logTypePageStore.newLogType;
-  currentSelection.value = currentValueSelected;
-});
-
-function closeNewLogType() {
-  logTypePageStore.clearNewLogType();
-  addLogTypeForm.value.reset();
-}
-
-async function addLogType() {
-  const logTypeHasJustCreated = await logTypePageStore.createLogType();
-
-  if (logTypeHasJustCreated) {
-    $q.notify({
-      type: 'positive',
-      message: 'Done! Successfully to create logType',
-      timeout: 5000,
-    });
-
-    addLogTypeForm.value.reset();
-    return;
-  }
-
-  $q.notify({
-    type: 'negative',
-    message: 'Oops! Something wrong!',
-    caption: 'Wait some seconds and try again!',
-    timeout: 5000,
-  });
-}
-
-async function editLogType() {
-  const logTypeHasJustEdited = await logTypePageStore.updateLogType();
-
-  if (logTypeHasJustEdited) {
-    $q.notify({
-      type: 'positive',
-      message: 'Done! Successfully to update logType',
-      timeout: 5000,
-    });
-
-    addLogTypeForm.value.reset();
-    return;
-  }
-
-  $q.notify({
-    type: 'negative',
-    message: 'Oops! Something wrong!',
-    caption: 'Wait some seconds and try again!',
-    timeout: 5000,
-  });
-}
-
-async function saveLogType() {
-  const { addingLogType, editingLogType, newLogType } = logTypePageStore;
-  const { value: addLogTypeFormReference = {} } = addLogTypeForm;
-
-  const result = await addLogTypeFormReference?.validate().then((success) => success);
+/**
+ * Save data
+ */
+async function saveSearchScheme() {
+  const result = await refLogTypeForm.value?.validate();
 
   if (!result) {
     $q.notify({
@@ -163,19 +116,8 @@ async function saveLogType() {
     return;
   }
 
-  const { fields = [] } = newLogType;
-
-  if (!fields.length) {
-    $q.notify({
-      type: 'negative',
-      message: 'You need to add at least one search scheme!',
-      timeout: 5000,
-    });
-    return;
-  }
-
-  if (addingLogType) await addLogType();
-  if (editingLogType) await editLogType();
+  await props.saveFormData();
+  await refLogTypeForm.value?.resetValidation();
 }
 </script>
 

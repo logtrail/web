@@ -16,7 +16,6 @@
       <template v-if="notificationsData.length">
         <!-- SEARCH RESULT -->
         <SearchResult
-          v-if="notificationsData.length"
           :pagination="pagination"
           :switchPage="switchPage"
           :editNotification="editNotification"
@@ -124,7 +123,6 @@ async function saveFormData() {
 
 /**
  * update notification by id
- * @param notificationId: string - Notification id
  */
 function addNotification(): void {
   drawerMode.value = 'add';

@@ -69,7 +69,6 @@ import {
   defineAsyncComponent,
   ref,
   computed,
-  onMounted,
   reactive,
 } from 'vue';
 
@@ -129,9 +128,9 @@ const defaultRule = computed(() => ([
   (value: any) => !!value || 'Field is required',
 ]));
 
-onMounted(() => {
-});
-
+/**
+ * Save data
+ */
 async function saveNotification() {
   const result = await refNotificationForm.value?.validate();
 
