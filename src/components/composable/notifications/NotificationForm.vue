@@ -1,12 +1,10 @@
 <template>
   <div class="row full-width q-px-md">
-    {{ formData }}
     <q-form
       greedy
       class="row full-width q-mt-md"
       ref="refNotificationForm">
 
-<!--      v-if="notificationPageStore.isEditingNotification"-->
       <div
         class="row col-12 q-mb-md q-px-none">
         <q-checkbox
@@ -16,7 +14,6 @@
           size="xs" />
       </div>
 
-<!--      :disable="notificationPageStore.isEditingNotification"-->
       <div class="row col-12 q-mb-md">
         <q-select
           v-model="formData.type"
@@ -39,7 +36,7 @@
 
       <EmailFormFields
         v-if="formData.type === 'email'"
-        v-model:formData="formData"
+        v-model:formData="formData.options"
         :field-props="fieldDefaultProps"
         :rules="defaultRule" />
 

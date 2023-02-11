@@ -67,7 +67,7 @@ import { DEFAULT_STATE } from './constants';
 const $q = useQuasar();
 
 const notificationsData = ref<any>([]);
-const formData = reactive({});
+const formData = reactive({ ...DEFAULT_STATE });
 const drawerMode = ref<string>('add');
 const openDrawer = ref<boolean>(false);
 const pagination = ref({

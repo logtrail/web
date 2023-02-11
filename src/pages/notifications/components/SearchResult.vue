@@ -9,9 +9,9 @@
     <template v-slot:body-cell-enable="props">
       <q-td :props="props">
         <q-chip
-          :color="props.row.status ? 'green' : 'red-4'"
+          :color="props.row.enable ? 'green' : 'red-4'"
           text-color="white">
-          {{ props.row.status ? 'Enabled' : 'Disabled' }}
+          {{ props.row.enable ? 'Enabled' : 'Disabled' }}
         </q-chip>
       </q-td>
     </template>

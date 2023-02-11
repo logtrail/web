@@ -1,8 +1,9 @@
 <template>
   <div class="row full-width q-col-gutter-y-md">
     <div class="row col-12">
+      <!-- CHOOSE NOTIFICATION TYPE-->
       <q-select
-        v-model="notificationPageStore.newNotification.options.accountType"
+        v-model="formData.accountType"
         v-bind="props.fieldProps"
         emit-value
         map-options
@@ -13,10 +14,11 @@
         @update:model-value="changeAccountType" />
     </div>
 
-    <template v-if="notificationPageStore.newNotification.options.accountType === 'google'">
+    <!-- SMTP GOOGLE '-->
+    <template v-if="formData.accountType === 'google'">
       <div class="row col-12">
         <q-input
-          v-model="notificationPageStore.newNotification.options.user"
+          v-model="formData.user"
           v-bind="props.fieldProps"
           class="col"
           label="User"
@@ -26,7 +28,7 @@
 
       <div class="row col-12">
         <q-input
-          v-model="notificationPageStore.newNotification.options.password"
+          v-model="formData.password"
           v-bind="props.fieldProps"
           class="col"
           label="Password"
@@ -35,10 +37,11 @@
       </div>
     </template>
 
-    <template v-else-if="notificationPageStore.newNotification.options.accountType === 'custom'">
+    <!-- CUSTOM SMTP -->
+    <template v-else-if="formData.accountType === 'custom'">
       <div class="row col-12">
         <q-input
-          v-model="notificationPageStore.newNotification.options.smtp"
+          v-model="formData.smtp"
           v-bind="props.fieldProps"
           stack-label
           class="col"
@@ -47,7 +50,7 @@
           :rules="props.rules">
           <template v-slot:append>
             <q-checkbox
-              v-model="notificationPageStore.newNotification.options.useTLS"
+              v-model="formData.useTLS"
               label="Use TLS"
               size="xs"
               @update:model-value="changeTLSoption" />
@@ -57,7 +60,7 @@
 
       <div class="row col-12">
         <q-input
-          v-model.number="notificationPageStore.newNotification.options.port"
+          v-model.number="formData.port"
           v-bind="props.fieldProps"
           stack-label
           class="col"
@@ -68,7 +71,7 @@
 
       <div class="row col-12">
         <q-input
-          v-model="notificationPageStore.newNotification.options.user"
+          v-model="formData.user"
           v-bind="props.fieldProps"
           class="col"
           label="User"
@@ -77,7 +80,7 @@
 
       <div class="row col-12">
         <q-input
-          v-model="notificationPageStore.newNotification.options.password"
+          v-model="formData.password"
           v-bind="props.fieldProps"
           class="col"
           label="Password"
@@ -95,52 +98,74 @@ export default {
 </script>
 
 <script setup lang="ts">
+/**
+ * Impor LIBS / Components / Contants / etc..
+ */
+import { computed, reactive } from 'vue';
 import useNotificationPageStore from 'src/stores/pages/notificationsPage';
 
-const notificationPageStore = useNotificationPageStore();
-
-const props = defineProps({
-  rules: {
-    type: Array,
-    default: () => [],
-  },
-
-  fieldProps: {
-    type: Object,
-    default: () => {},
-  },
-});
-
+/**
+ * STATE AND CONSTANTS
+ * @type {QVueGlobals}
+ */
 const accountTypes = [
   { label: 'Google', value: 'google' },
   { label: 'Custom', value: 'custom' },
 ];
 
-function changeTLSoption(value) {
-  const port = value ? 465 : 587;
+/**
+ * Define props
+ */
+const props = defineProps({
+  rules: {
+    type: Array,
+    default: () => [],
+  },
+  fieldProps: {
+    type: Object,
+    default: () => {},
+  },
+  formData: {
+    type: Object,
+    default: () => reactive({}),
+  },
+});
 
-  notificationPageStore.newNotification = {
-    ...notificationPageStore.newNotification,
-    options: {
-      ...notificationPageStore.newNotification.options,
-      port,
-    },
-  };
+/**
+ * Define emit
+ */
+const emit = defineEmits(['update:formData']);
+
+/**
+ * Computed data
+ */
+const formData = computed({
+  get: () => props.formData,
+  set: (formData) => emit('update:formData', formData),
+});
+
+/**
+ * Use TLS port
+ * @param value:boolean - yes or not to use TLS
+ */
+function changeTLSoption(value: boolean) {
+  const port = value ? 465 : 587;
+  formData.value.port = port;
 }
 
-function changeAccountType(value) {
-  const accountTypes = {
-    google: () => {
-      delete notificationPageStore.newNotification.options.smtp;
-      delete notificationPageStore.newNotification.options.port;
-      delete notificationPageStore.newNotification.options.useTLS;
-    },
-    custom: () => {
-      notificationPageStore.newNotification.options.useTLS = false;
-    },
-  };
-
-  accountTypes[value]();
+function changeAccountType(value: any) {
+  // const accountTypes = {
+  //   google: () => {
+  //     delete formData.smtp;
+  //     delete formData.port;
+  //     delete formData.useTLS;
+  //   },
+  //   custom: () => {
+  //     formData.useTLS = false;
+  //   },
+  // };
+  //
+  // accountTypes[value]();
 }
 </script>
 
