@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
  * @param date: Date - Date to format
  * @param format: string - Format type
  */
-export function formatDate(date: Date, format: string) {
+export function formatDate(date: (Date|string), format: string) {
   return dayjs(date).format(format);
 }
 
