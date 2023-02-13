@@ -5,7 +5,7 @@ type TableColumns = QTableProps['columns'];
 /**
  * Limit per page to search logs
  */
-export const LIMIT_PER_PAGE = 2;
+export const LIMIT_PER_PAGE = 10;
 
 /**
  * Columns log tables

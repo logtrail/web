@@ -60,7 +60,7 @@ import { isEmpty } from 'lodash';
 import { nextTick, onMounted, ref } from 'vue';
 
 import { services } from 'src/services';
-import { getValuesByMultiSelect } from 'src/shared/helpers';
+import { getValuesByMultiSelect, mongoIdToTimeStamp } from 'src/shared/helpers';
 
 import NoData from 'components/general/banner/NoData.vue';
 import StaticFilters from './components/StaticFilters.vue';
@@ -75,6 +75,7 @@ import { LIMIT_PER_PAGE } from './constants';
 // GLOBALS //
 // ------- //
 let previousCursorId = '';
+let nextCursorId = '';
 const $q = useQuasar();
 
 // ------ //
@@ -87,8 +88,8 @@ const advancedFilters = ref([]);
 
 const categories = ref([]);
 
-const enableNextPage = ref<boolean>(true);
-const enablePreviousPage = ref<boolean>(true);
+const enableNextPage = ref<boolean>(false);
+const enablePreviousPage = ref<boolean>(false);
 const statusModalAdvancedFilters = ref<boolean>(false);
 
 const startDate = ref<string>(
@@ -149,13 +150,13 @@ async function getLogs(
   if (!isEmpty(nextCursor)) payload.nextCursor = nextCursor;
   if (!isEmpty(previousCursor)) payload.previousCursor = previousCursor;
 
-  const retData = await services.logs.search(payload);
-  logsData.value = retData;
+  const { items, hasNextCursor = false } = await services.logs.search(payload);
+  logsData.value = items;
 
-  if (!isEmpty(retData)) {
+  if (!isEmpty(items)) {
     await Promise.all([
-      checkStatusPreviousCursor(retData),
-      checkStatusNextCursor(retData),
+      checkStatusPreviousCursor(items),
+      checkStatusNextCursor(items, hasNextCursor),
     ]);
 
     await nextTick();
@@ -205,9 +206,23 @@ async function checkStatusPreviousCursor(logsData: any[]) {
  * @description Check data to enable or disable next btn
  *
  * @param logsData: any[] - Logs
+ * @param hasNextCursor: Boolean - Logs
  */
-async function checkStatusNextCursor(logsData: any) {
-  enableNextPage.value = true;
+async function checkStatusNextCursor(logsData: any, hasNextCursor: boolean) {
+  if (hasNextCursor) {
+    const lastRegister = logsData[logsData.length - 1];
+    const nextCursor = lastRegister._id;
+
+    nextCursorId = nextCursor;
+    enableNextPage.value = true;
+  } else {
+    const lastCursorTimeStamp = mongoIdToTimeStamp(nextCursorId);
+
+    const lastRegister = logsData[logsData.length - 1];
+    const currentCursorTimeStamp = mongoIdToTimeStamp(lastRegister._id);
+
+    enableNextPage.value = lastCursorTimeStamp <= currentCursorTimeStamp;
+  }
 }
 
 </script>
