@@ -24,4 +24,19 @@ pre * {
   color: $primary!important;
 }
 
+.search-result-card {
+  &_item {
+    padding: 16px;
+    border-radius: 4px;
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, .2);
+
+    .field {
+      &-title {
+        margin-bottom: 4px;
+        color: $grey-7;
+      }
+    }
+  }
+}
+
 @import './components/_components';
