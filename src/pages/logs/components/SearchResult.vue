@@ -2,7 +2,7 @@
   <div class="row full-width full-height">
     <div class="search-result-card row q-gutter-y-sm full-width">
       <div
-        v-for="currentLog of props.logsData"
+        v-for="currentLog of allLogs"
         class="search-result-card_item row col-12 justify-between"
         :id="`log-${currentLog._id}`"
         :key="`log-${currentLog._id}`">
@@ -18,7 +18,7 @@
             Level
           </div>
           <q-chip
-            :color="getLevelColorByName(currentLog.level) || 'grey-4'"
+            :color="getLevelColorByName(currentLog.level)"
             :ripple="false">
             {{ currentLog.level }}
           </q-chip>
@@ -64,24 +64,24 @@
               <q-item-section>Toggle event details</q-item-section>
             </q-item>
 
+            <q-separator />
+
             <q-item
               v-close-popup
               clickable
-              @click="openEventDetailsInNewPage(currentLog._id)">
+              @click="copyDataToClipboard(currentLog._id)">
               <q-item-section avatar>
-                <q-icon name="open_in_new" />
+                <q-icon name="content_copy" />
               </q-item-section>
-              <q-item-section>Open details in new tab</q-item-section>
+              <q-item-section>Copy event Id</q-item-section>
             </q-item>
-
-            <q-separator />
 
             <q-item
               v-close-popup
               clickable
               @click="copyEventDetailsAsJSON(currentLog)">
               <q-item-section avatar>
-                <q-icon name="content_copy" />
+                <q-icon name="copy_all" />
               </q-item-section>
               <q-item-section>Copy event details as JSON</q-item-section>
             </q-item>
@@ -124,13 +124,12 @@ export default { name: 'SearchResult' };
 </script>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useQuasar, copyToClipboard } from 'quasar';
-import { useRouter } from 'vue-router';
 
 import { formatDate } from 'src/shared/helpers';
 
 import { LEVEL_OPTIONS } from 'src/shared/constants';
-import { COLUMNS } from 'pages/logs/constants';
 import { LogData } from '../interfaces';
 
 /**
@@ -158,61 +157,97 @@ const props = defineProps({
 // STATE //
 // ------//
 const $q = useQuasar();
-const $router = useRouter();
+
+// ---------//
+// COMPUTED //
+// ---------//
+const allLogs = computed((): LogData[] => {
+  const { logsData } = props;
+
+  return logsData as LogData[];
+});
 
 // ------- //
 // METHODS //
 // ------- //
 /**
- * Get color by level
- * @param level: string - Level name
+ * @description Get color by level
+ *
+ * @param {string} level: Level name
+ *
+ * @returns {string}
  */
-function getLevelColorByName(level: string) {
-  const { color: currentLevelOptionColor } = LEVEL_OPTIONS
+function getLevelColorByName(level: string): string {
+  const { color: currentLevelOptionColor = 'grey-4' } = LEVEL_OPTIONS
     .find((levelOption) => levelOption.value === level) || {};
 
   return currentLevelOptionColor;
 }
 
-function getPartialFromEventValue(value: string) {
+/**
+ * @description Mount a small part from event to show
+ *
+ * @param {string} event
+ *
+ * @returns {string}
+ *
+ * @example
+ *
+ * const myLongString = 'Lorem ipsum dolor sit, amet [...] doloremque possimus!';
+ *
+ * getPartialFromEventValue(myLongString)
+ * // Lorem ipsum dolor sit, [...] Nisi unde eveniet voluptates...
+ */
+function getPartialFromEventValue(event: string): string {
   let maxSize = 80;
 
   if ($q.screen.lt.sm) maxSize = 35;
   if ($q.screen.lt.md) maxSize = 45;
   if ($q.screen.lt.lg) maxSize = 55;
 
-  const newText = JSON.stringify(value).substring(0, maxSize);
+  const newText = JSON.stringify(event).substring(0, maxSize);
   return `${newText}...`;
 }
 
+/**
+ * @description Toggle log details by id
+ *
+ * @param {string} logId
+ */
 function expandLogItem(logId: string) {
-  const logReference = document.getElementById(`log-${logId}`);
+  const logReference = document.getElementById(`log-${logId}`) as HTMLElement;
 
   if (!logReference) return;
 
-  const eventDetailsReference = logReference.querySelector('.log-details');
+  const eventDetailsReference = logReference.querySelector('.log-details') as HTMLElement;
 
   if (!eventDetailsReference) return;
 
   logReference.classList.toggle('log-expanded');
-
   eventDetailsReference.classList.toggle('animated');
-  eventDetailsReference.classList.toggle('shakeY');
 
   const heightValue = eventDetailsReference?.classList.contains('animated') ? eventDetailsReference?.scrollHeight : 0;
   eventDetailsReference.style.height = `${heightValue}px`;
 }
 
-function openEventDetailsInNewPage(eventId: string) {
-  const path = `/log-details/${eventId}`;
-  const routeData = $router.resolve({ path });
-  window.open(routeData.href, '_blank');
-}
-
+/**
+ * @description Copy event details as JSON by event data log
+ *
+ * @param {LogData} event
+ */
 function copyEventDetailsAsJSON(event: LogData) {
   const eventInJSON = JSON.stringify(event, null, 2);
 
-  copyToClipboard(eventInJSON)
+  copyDataToClipboard(eventInJSON);
+}
+
+/**
+ * @description Copy data to clipboard
+ *
+ * @param {string} data
+ */
+function copyDataToClipboard(data: string) {
+  copyToClipboard(data)
     .then(() => {
       $q.notify({
         type: 'positive',
@@ -231,39 +266,14 @@ function copyEventDetailsAsJSON(event: LogData) {
 </script>
 
 <style lang="scss" scoped>
-.search-result-card {
-
-  &_item {
-    padding: 16px;
-    border-radius: 4px;
-    box-shadow: 1px 1px 10px rgba(0, 0, 0, .2);
-  }
-}
-
 .log-details {
+  cursor: default;
   height: 0;
   overflow: hidden;
 }
 
 .log-expanded > .log-details {
   overflow: visible;
-}
-
-.q-table__card {
-  box-shadow: none;
-  border: 1px solid rgba($secondary, .3);
-}
-
-.field {
-  &-title {
-    margin-bottom: 4px;
-    color: $grey-7;
-  }
-}
-
-.q-chip {
-  margin: 0;
-  font-size: 12px;
 }
 
 code {
