@@ -509,3 +509,30 @@ async function fieldsToAdvancedFilter(event: any) {
   fieldNameOptions.value = await mountFieldsToAdvancedFilters(fields);
 }
 </script>
+
+<style lang="scss" scoped>
+.advanced-filters-card {
+  background-color: #fff;
+  padding: 16px;
+  max-width: min(950px, 90%) !important;
+  max-height: min(550px, 90vh) !important;
+  height: min(550px, 90vh) !important;
+
+  &_content {
+    margin-top: 32px;
+  }
+
+  &_filter-list {
+    margin-top: 32px;
+
+    &--item {
+      padding: 4px 12px;
+      border-radius: 4px;
+
+      &:nth-child(odd) {
+        background-color: $grey-2;
+      }
+    }
+  }
+}
+</style>
