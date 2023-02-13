@@ -1,7 +1,7 @@
 import { QTableColumn } from 'quasar';
 
 /**
- * Columnn table categories list
+ * Column table categories list
  */
 export const COLUMNS: QTableColumn[] = [
   {
@@ -32,7 +32,7 @@ export const COLUMNS: QTableColumn[] = [
   {
     name: 'created',
     align: 'left',
-    label: 'Creat At',
+    label: 'Created At',
     field: 'created',
   },
   {

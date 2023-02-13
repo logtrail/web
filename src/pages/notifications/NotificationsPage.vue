@@ -40,8 +40,12 @@ export default {
 
 <script setup lang="ts">
 /**
- * Impor LIBS / Components / Contants / etc..
+ * Impor LIBS / Components / Constants / etc..
  */
+import Prism from 'prismjs';
+import 'prismjs/themes/prism.min.css';
+import 'prismjs/components/prism-javascript';
+
 import {
   ref,
   nextTick,
@@ -49,6 +53,7 @@ import {
   reactive,
   toRaw,
 } from 'vue';
+import { isEmpty } from 'lodash';
 
 import { useQuasar } from 'quasar';
 import { services } from 'src/services';
@@ -59,13 +64,14 @@ import SearchResult from './components/SearchResult.vue';
 import Drawer from './components/Drawer.vue';
 
 import { DEFAULT_STATE } from './constants';
+import { NotificationData } from './interfaces';
 
 // ------- //
 // STATE'S //
 // ------- //
 const $q = useQuasar();
 
-const notificationsData = ref<any>([]);
+const notificationsData = ref<NotificationData[]>([]);
 const formData = reactive({ ...DEFAULT_STATE });
 const drawerMode = ref<string>('add');
 const openDrawer = ref<boolean>(false);
@@ -100,6 +106,11 @@ async function getNotifications() {
 
   notificationsData.value = notifications;
   pagination.value.total = paginationIfo.total;
+
+  if (!isEmpty(notifications)) {
+    await nextTick();
+    Prism.highlightAll();
+  }
 }
 
 /**
