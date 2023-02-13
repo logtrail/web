@@ -1,16 +1,16 @@
 <template>
-  <q-page class="searchScheme-page full-height">
+  <q-page class="search-scheme-page full-height">
     <!-- MENU TO ADD / EDIT FORM -->
     <Drawer
       v-model:formData="formData"
       v-model:openDrawer="openDrawer"
       :drawerMode="drawerMode"
-      :saveFormData="saveFormData"/>
+      :saveFormData="saveFormData" />
 
     <!-- HEADER PAGE -->
     <HeaderPage
       :addSearchScheme="addSearchScheme"
-      :searchSchemesData="searchSchemesData"/>
+      :searchSchemesData="searchSchemesData" />
 
     <div class="row full-width full-height">
       <!-- SEARCH RESULT -->
@@ -20,13 +20,12 @@
           :switchPage="switchPage"
           :editSearchScheme="editSearchScheme"
           :removeSearchScheme="removeSearchScheme"
-          :searchSchemesData="searchSchemesData"/>
+          :searchSchemesData="searchSchemesData" />
       </template>
 
       <!-- NO DATA -->
       <template v-else>
-        <NoData
-          :addSearchScheme="addSearchScheme"/>
+        <NoData :addSearchScheme="addSearchScheme" />
       </template>
     </div>
   </q-page>
@@ -62,14 +61,15 @@ import HeaderPage from './components/Header.vue';
 import SearchResult from './components/SearchResult.vue';
 import Drawer from './components/Drawer.vue';
 
-import { DEFAULT_STATE } from './contants';
+import { SearchSchemeData } from './interfaces';
+import { DEFAULT_STATE } from './constants';
 
 // ------- //
 // STATE'S //
 // ------- //
 const $q = useQuasar();
 
-const searchSchemesData = ref<any>([]);
+const searchSchemesData = ref<SearchSchemeData[]>([]);
 const formData = reactive({ ...DEFAULT_STATE });
 const drawerMode = ref<string>('add');
 const openDrawer = ref<boolean>(false);
@@ -199,7 +199,7 @@ $title-height: 50px + 48px; // 48px margin bottom
 
 $used-area: $header-height + $padding-y + ($title-height * 2);
 
-.searchScheme-card-content {
+.search-scheme-card-content {
   padding: 8px;
   border: 1px solid rgba($secondary, .3);
   border-radius: 4px;
