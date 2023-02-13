@@ -1,4 +1,4 @@
-import { QSelectOption } from 'quasar'
+import { QSelectOption } from 'quasar';
 
 /**
  * Operation options
@@ -15,8 +15,20 @@ export interface OperationOptions {
 export interface FieldName extends QSelectOption {
   value: string;
   id?: string;
+  _id?: string;
   categoryId?: string;
   bucketName: string;
+  created: string;
+  event: any;
+  level: string;
+}
+
+export interface LogData {
+  _id: string;
+  category: string;
+  created: string;
+  event: any;
+  level: string;
 }
 
 /**

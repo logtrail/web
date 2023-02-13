@@ -1,3 +1,7 @@
+import { QTableProps } from 'quasar';
+
+type TableColumns = QTableProps['columns'];
+
 /**
  * Limit per page to search logs
  */
@@ -6,7 +10,7 @@ export const LIMIT_PER_PAGE = 2;
 /**
  * Columns log tables
  */
-export const COLUMNS = [
+export const COLUMNS: TableColumns = [
   {
     name: 'event',
     required: true,

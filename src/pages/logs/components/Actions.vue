@@ -1,5 +1,7 @@
 <template>
-  <div class="row reverse full-width items-center q-col-gutter-sm">
+  <div
+    class="row reverse full-width items-center"
+    :class="$q.screen.lt.md ? 'q-col-gutter-y-sm' : 'q-col-gutter-sm'">
     <div class="row col-12 col-md-shrink">
       <q-btn
         no-caps
@@ -18,10 +20,10 @@
         unelevated
         color="primary"
         class="col secondary-btn"
-        icon="filter_alt"
+        icon="tune"
         @click.stop="openAdvancedFilters">
         <p class="q-mb-none q-mx-sm">
-          Advanced Search
+          Advanced Filters
         </p>
         <q-chip
           v-if="props.advancedFilters.length"

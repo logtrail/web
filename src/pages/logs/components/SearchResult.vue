@@ -1,73 +1,94 @@
 <template>
   <div class="row full-width full-height">
-    <q-table
-      hide-pagination
-      class="col-12"
-      row-key="_id"
-      :columns="COLUMNS"
-      :pagination="{ rowsPerPage: 10 }"
-      :rows="props.logsData">
-      <template v-slot:header="props">
-        <q-tr :props="props">
-          <q-th auto-width/>
-          <q-th
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props">
-            {{ col.label }}
-          </q-th>
-        </q-tr>
-      </template>
+    <div class="search-result-card row q-gutter-y-sm full-width">
+      <div
+        v-for="currentLog of props.logsData"
+        class="search-result-card_item row col-12 justify-between"
+        :id="`log-${currentLog._id}`"
+        :key="`log-${currentLog._id}`">
+        <div
+          class="row col-12 col-md-5 q-pr-xs content-start cursor-pointer"
+          @click.stop="expandLogItem(currentLog._id)">
+          <span class="col-12 field-title">Event</span>
+          <code>{{ getPartialFromEventValue(currentLog.event) }}</code>
+        </div>
 
-      <template v-slot:body="props">
-        <q-tr
-          :key="props.row._id"
-          :props="props">
-          <q-td auto-width>
-            <q-btn
-              dense
-              round
-              unelevated
-              color="info"
-              size="sm"
-              :icon="props.expand ? 'remove' : 'add'"
-              @click.stop="props.expand = !props.expand"/>
-          </q-td>
-          <q-td
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-            @click.stop="props.expand = !props.expand">
-            <code v-if="col.name === 'event'">{{ getPartialFromEventValue(col.value) }}</code>
-            <q-chip
-              v-if="col.name === 'level'"
-              :color="getLevelColorByName(col.value) || 'grey-4'">
-              {{ col.value }}
-            </q-chip>
-            <span v-if="col.name === 'created'">
-                  {{ formatDate(col.value, 'YYYY/MM/DD HH:mm:ss') }}
-                </span>
-            <span v-if="col.name === 'category'">
-                  {{ col.value }}
-                </span>
-          </q-td>
-        </q-tr>
+        <div class="row col-12 col-sm-2 q-px-xs content-start">
+          <div class="col-12 field-title">
+            Level
+          </div>
+          <q-chip
+            :color="getLevelColorByName(currentLog.level) || 'grey-4'"
+            :ripple="false">
+            {{ currentLog.level }}
+          </q-chip>
+        </div>
 
-        <q-tr
-          auto-width
-          :key="props.row._id"
-          v-show="props.expand"
-          :props="props">
-          <q-td colspan="100%">
-            <div class="text-left">
-              <p class="text-h6">Event details</p>
-              <pre class="language-javascript"><code>{{ props.row.event }}</code></pre>
-            </div>
-          </q-td>
-        </q-tr>
-      </template>
+        <div class="row col-12 col-sm-2 q-px-xs content-start">
+          <div class="col-12 field-title">
+            Category
+          </div>
+          {{ currentLog.category }}
+        </div>
 
-    </q-table>
+        <div
+          class="row col-12 col-sm-3 q-pl-xs content-start"
+          :class="$q.screen.lt.md ? '' : 'text-right'">
+          <div class="col-12 field-title">
+            Created at
+          </div>
+          <div class="col-12">
+            {{ formatDate(currentLog.created, 'YYYY/MM/DD HH:mm:ss') }}
+          </div>
+        </div>
+
+        <div class="full-width row log-details">
+          <q-separator class="q-my-md full-width" />
+          <div class="text-left col-12">
+            <p class="text-h6">Event details</p>
+            <pre class="language-javascript"><code>{{ currentLog.event }}</code></pre>
+          </div>
+        </div>
+
+        <q-menu
+          touch-position
+          context-menu>
+          <q-list style="min-width: 80px">
+            <q-item
+              v-close-popup
+              clickable
+              @click="expandLogItem(currentLog._id)">
+              <q-item-section avatar>
+                <q-icon name="unfold_less" />
+              </q-item-section>
+              <q-item-section>Toggle event details</q-item-section>
+            </q-item>
+
+            <q-item
+              v-close-popup
+              clickable
+              @click="openEventDetailsInNewPage(currentLog._id)">
+              <q-item-section avatar>
+                <q-icon name="open_in_new" />
+              </q-item-section>
+              <q-item-section>Open details in new tab</q-item-section>
+            </q-item>
+
+            <q-separator />
+
+            <q-item
+              v-close-popup
+              clickable
+              @click="copyEventDetailsAsJSON(currentLog)">
+              <q-item-section avatar>
+                <q-icon name="content_copy" />
+              </q-item-section>
+              <q-item-section>Copy event details as JSON</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </div>
+    </div>
 
     <div class="row col-12 justify-center items-center q-col-gutter-sm q-mt-md">
       <div class="row col-shrink">
@@ -103,11 +124,15 @@ export default { name: 'SearchResult' };
 </script>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar';
+import { useQuasar, copyToClipboard } from 'quasar';
+import { useRouter } from 'vue-router';
+
 import { formatDate } from 'src/shared/helpers';
 
 import { LEVEL_OPTIONS } from 'src/shared/constants';
 import { COLUMNS } from 'pages/logs/constants';
+import { LogData } from '../interfaces';
+
 /**
  * Props to use
  */
@@ -133,6 +158,7 @@ const props = defineProps({
 // STATE //
 // ------//
 const $q = useQuasar();
+const $router = useRouter();
 
 // ------- //
 // METHODS //
@@ -158,4 +184,96 @@ function getPartialFromEventValue(value: string) {
   const newText = JSON.stringify(value).substring(0, maxSize);
   return `${newText}...`;
 }
+
+function expandLogItem(logId: string) {
+  const logReference = document.getElementById(`log-${logId}`);
+
+  if (!logReference) return;
+
+  const eventDetailsReference = logReference.querySelector('.log-details');
+
+  if (!eventDetailsReference) return;
+
+  logReference.classList.toggle('log-expanded');
+
+  eventDetailsReference.classList.toggle('animated');
+  eventDetailsReference.classList.toggle('shakeY');
+
+  const heightValue = eventDetailsReference?.classList.contains('animated') ? eventDetailsReference?.scrollHeight : 0;
+  eventDetailsReference.style.height = `${heightValue}px`;
+}
+
+function openEventDetailsInNewPage(eventId: string) {
+  const path = `/log-details/${eventId}`;
+  const routeData = $router.resolve({ path });
+  window.open(routeData.href, '_blank');
+}
+
+function copyEventDetailsAsJSON(event: LogData) {
+  const eventInJSON = JSON.stringify(event, null, 2);
+
+  copyToClipboard(eventInJSON)
+    .then(() => {
+      $q.notify({
+        type: 'positive',
+        message: 'Copied to transfer area!',
+        timeout: 5000,
+      });
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        message: 'Oops! Fail to copy event details!',
+        timeout: 5000,
+      });
+    });
+}
 </script>
+
+<style lang="scss" scoped>
+.search-result-card {
+
+  &_item {
+    padding: 16px;
+    border-radius: 4px;
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, .2);
+  }
+}
+
+.log-details {
+  height: 0;
+  overflow: hidden;
+}
+
+.log-expanded > .log-details {
+  overflow: visible;
+}
+
+.q-table__card {
+  box-shadow: none;
+  border: 1px solid rgba($secondary, .3);
+}
+
+.field {
+  &-title {
+    margin-bottom: 4px;
+    color: $grey-7;
+  }
+}
+
+.q-chip {
+  margin: 0;
+  font-size: 12px;
+}
+
+code {
+  background: $grey-2;
+  color: $dark;
+  word-wrap: break-word;
+  box-decoration-break: clone;
+  padding: .1rem .3rem .2rem;
+  border-radius: .2rem;
+  font-family: monospace;
+  max-width: 100%;
+}
+</style>

@@ -1,6 +1,8 @@
 <template>
   <q-dialog
     persistent
+    transition-hide="slide-down"
+    transition-show="slide-up"
     :model-value="props.statusModalAdvancedFilters">
     <div class="row full-width advanced-filters-card content-start">
       <!-- HEADER -->
@@ -233,7 +235,7 @@ import { useSearchScheme } from 'src/composables';
 import { VIRTUAL_SCROLL_ITEM_SIZE } from 'src/shared/constants';
 
 import {
-  OperationOptions,
+  // OperationOptions,
   FieldName,
   ItemSearchScheme,
 } from '../interfaces';
@@ -343,6 +345,8 @@ function addNewAdvancedFilter() {
   }
 
   if (fieldNameValue?.bucketName === 'numbersBucket') {
+    if (!operation.value) return;
+
     const { value: operationValue } = operation.value;
 
     if (operationValue === 'range') {

@@ -14,9 +14,9 @@
           <div class="column items-start">
             <q-icon name="img:icons/favicon-32x32.png" class="mini-icon q-mb-md" />
             <q-icon
-              v-for="{ icon, route } in menus"
+              v-for="{ icon, route, class: iconClass } in menus"
               class="mini-icon"
-              :class="[route === currentRoute && 'mini--active']"
+              :class="[route === currentRoute && 'mini--active', iconClass]"
               :key="`mini-${icon}`"
               :name="icon" />
           </div>
@@ -59,30 +59,35 @@ const menus = [
     icon: 'view_day',
     label: 'Logs',
     route: '/',
+    class: '',
   },
   {
     id: 'category',
-    icon: 'tune',
+    icon: 'push_pin',
     label: 'Categories',
     route: '/categories',
+    class: 'rotate-45',
   },
   {
     id: 'searchScheme',
     icon: 'storage', // 'data_object',
     label: 'Search scheme',
     route: '/searchscheme',
+    class: '',
   },
   {
     id: 'notifications',
     icon: 'notifications',
     label: 'Notifications',
     route: '/notifications',
+    class: '',
   },
   {
     id: 'settings',
     icon: 'settings',
     label: 'Settings',
     route: '/settings',
+    class: '',
   },
 ];
 

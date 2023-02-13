@@ -1,5 +1,7 @@
 <template>
-  <div class="row full-width q-col-gutter-sm items-center q-pb-sm">
+  <div
+    class="row full-width items-center q-mb-sm"
+    :class="staticFilterGutterClasses">
     <div class="row col-12 col-md-6 col-lg-3">
       <LtInput
         readonly
@@ -201,12 +203,17 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useQuasar } from 'quasar';
+
 import { LEVEL_OPTIONS, VIRTUAL_SCROLL_ITEM_SIZE } from 'src/shared/constants';
 
 import LtInput from 'components/general/input/LtInput.vue';
 import LtSelect from 'components/general/select/LtSelect.vue';
 
 import { useCategories } from 'src/composables';
+
+const $q = useQuasar();
 
 const {
   getCategoriesByNextPage,
@@ -237,6 +244,15 @@ const emit = defineEmits([
   'update:levels',
   'update:categories',
 ]);
+
+const staticFilterGutterClasses = computed(() => {
+  const { screen } = $q;
+
+  if (screen.lt.md) return 'q-gutter-y-sm';
+  if (screen.gt.sm) return 'q-col-gutter-sm';
+
+  return 'q-gutter-sm';
+});
 
 /**
  * Emit to parent the value

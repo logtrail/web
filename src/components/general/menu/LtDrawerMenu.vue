@@ -9,6 +9,7 @@
       <q-item-section avatar>
         <q-icon
           color="dark"
+          :class="item?.class"
           :name="item?.icon" />
       </q-item-section>
 

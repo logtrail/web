@@ -1,6 +1,8 @@
 <template>
   <q-page class="logs-page full-height">
-    <div class="row full-width content-center items-center q-mb-xl">
+    <div
+      class="row full-width content-center items-center q-mb-xl"
+      :class="$q.screen.lt.md ? 'q-col-gutter-y-sm' : 'q-col-gutter-sm'">
       <p class="text-h3 col-grow q-mr-md q-mb-none">Logs</p>
     </div>
 
@@ -8,27 +10,26 @@
 
       <!-- STATIC FILTER -->
       <StaticFilters
-        v-model:startDate="startDate"
+        v-model:categories="categories"
         v-model:endDate="endDate"
         v-model:levels="levels"
-        v-model:categories="categories "/>
+        v-model:startDate="startDate" />
 
       <!-- ACTIONS -->
       <Actions
         v-model:statusModalAdvancedFilters="statusModalAdvancedFilters"
-        :advancedFilters="advancedFilters"
-        :getLogs="clickToGetLogs"
-        :advanced-filters="advancedFilters" />
+        :advanced-filters="advancedFilters"
+        :getLogs="clickToGetLogs" />
     </div>
 
     <!-- LOG DATA -->
     <SearchResult
       v-if="logsData.length"
-      :logsData="logsData"
       :enableNextPage="enableNextPage"
       :enablePreviousPage="enablePreviousPage"
-      :previousPage="previousPage"
-      :nextPage="nextPage"/>
+      :logsData="logsData"
+      :nextPage="nextPage"
+      :previousPage="previousPage" />
 
     <!-- NO LOGS -->
     <template v-else>
@@ -67,6 +68,7 @@ import AdvancedFilters from './components/AdvancedFilters.vue';
 import Actions from './components/Actions.vue';
 import SearchResult from './components/SearchResult.vue';
 
+import { LogData } from './interfaces';
 import { LIMIT_PER_PAGE } from './constants';
 
 // ------- //
@@ -80,7 +82,7 @@ const $q = useQuasar();
 // ------ //
 
 const levels = ref([]);
-const logsData = ref([]);
+const logsData = ref<LogData[]>([]);
 const advancedFilters = ref([]);
 
 const categories = ref([]);
@@ -112,7 +114,8 @@ onMounted(async () => {
 // ------- //
 
 /**
- * Clear the previous cursor
+ * @async
+ * @description Clear the previous cursor
  */
 async function clickToGetLogs() {
   previousCursorId = '';
@@ -120,7 +123,9 @@ async function clickToGetLogs() {
 }
 
 /**
- * Search logs
+ * @async
+ * @description Search logs
+ *
  * @param cursorData: { nextCursor?: string, previousCursor?: string } - Cursor data
  */
 async function getLogs(
@@ -159,7 +164,8 @@ async function getLogs(
 }
 
 /**
- * Previous page in cursor pagination
+ * @async
+ * @description Previous page in cursor pagination
  */
 async function previousPage() {
   const lastRegister = logsData.value[0];
@@ -168,7 +174,8 @@ async function previousPage() {
 }
 
 /**
- * Next page in cursor pagination
+ * @async
+ * @description Next page in cursor pagination
  */
 async function nextPage() {
   const lastRegister = logsData.value[logsData.value.length - 1];
@@ -177,7 +184,9 @@ async function nextPage() {
 }
 
 /**
- * Check data to enable or disable previous btn
+ * @async
+ * @description Check data to enable or disable previous btn
+ *
  * @param logsData: any[] - Logs
  */
 async function checkStatusPreviousCursor(logsData: any[]) {
@@ -192,7 +201,9 @@ async function checkStatusPreviousCursor(logsData: any[]) {
 }
 
 /**
- * Check data to enable or disable next btn
+ * @async
+ * @description Check data to enable or disable next btn
+ *
  * @param logsData: any[] - Logs
  */
 async function checkStatusNextCursor(logsData: any) {
@@ -201,66 +212,8 @@ async function checkStatusNextCursor(logsData: any) {
 
 </script>
 
-<style lang="scss">
-$header-height: 50px;
-$padding-y: 32px;
-$title-height: 50px + 48px; // 48px margin bottom
-$filters-height: 132px;
-
-$used-area: $header-height + $padding-y + ($title-height * 2) + $filters-height;
-
-.q-table__card {
-  box-shadow: none;
-  border: 1px solid rgba($secondary, .3);
-}
-
-.logs-no-data {
-  height: calc(100vh - #{$used-area}) !important;
-}
-
-.q-field {
-  .q-chip {
-    margin: 0 4px;
-    font-size: 12px;
-  }
-}
-
-.advanced-filters-card {
-  background-color: #fff;
-  padding: 16px;
-  max-width: min(950px, 90%) !important;
-  max-height: min(550px, 90vh) !important;
-  height: min(550px, 90vh) !important;
-
-  &_content {
-    margin-top: 32px;
-  }
-
-  &_filter-list {
-    margin-top: 32px;
-
-    &--item {
-      padding: 4px 12px;
-      border-radius: 4px;
-
-      &:nth-child(odd) {
-        background-color: $grey-2;
-      }
-    }
-  }
-}
-
+<style lang="scss" scoped>
 .logs-simple-filter {
   margin-bottom: 32px;
-}
-
-code {
-  background: $grey-2;
-  color: $dark;
-  word-wrap: break-word;
-  box-decoration-break: clone;
-  padding: .1rem .3rem .2rem;
-  border-radius: .2rem;
-  font-family: monospace;
 }
 </style>
