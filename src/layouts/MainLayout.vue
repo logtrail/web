@@ -35,8 +35,8 @@
     <q-footer class="bg-white q-px-md text-dark" bordered>
       <q-toolbar>
         <q-toolbar-title class="items-center row">
-          <span class="q-pr-sm">Logtrail</span>
-          <q-badge :label="`v ${currentVersion}`" />
+          <span class="q-pr-sm text-caption">Open Source system to centralize logs</span>
+          <q-badge :label="`v${currentVersion}`" />
         </q-toolbar-title>
 
         <div class="footer-menu">
