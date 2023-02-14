@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh Lpr lFf">
+  <q-layout view="hHh Lpr fFf">
     <LtHeader @toggle-left-drawer="toggleLeftDrawer" />
 
     <q-drawer
@@ -31,6 +31,33 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-footer class="bg-white q-px-md text-dark" bordered>
+      <q-toolbar>
+        <q-toolbar-title class="items-center row">
+          <span class="q-pr-sm">Logtrail</span>
+          <q-badge :label="`v ${currentVersion}`" />
+        </q-toolbar-title>
+
+        <div class="footer-menu">
+          <a
+            class="row items-center"
+            href="https://github.com/logtrail/web"
+            target="_blank">
+            <q-icon
+              class="q-pr-xs"
+              name="mdi-github"
+              size="18px" />
+            <span>GitHub</span>
+            <q-icon
+              class="q-pl-xs"
+              name="open_in_new" />
+          </a>
+        </div>
+
+        Made with <span class="text-red q-px-sm">&#10084;</span> by LogTrail Team
+      </q-toolbar>
+    </q-footer>
   </q-layout>
 </template>
 
@@ -44,12 +71,13 @@ export default {
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
+import { version as currentVersion } from 'app/package.json';
+
 import LtHeader from 'components/general/header/LtHeader.vue';
 import LtDrawerMenu from 'components/general/menu/LtDrawerMenu.vue';
 
 const leftDrawerOpen = ref(true);
 const leftMiniDrawer = ref(false);
-const search = ref('');
 
 const $route = useRoute();
 
@@ -126,6 +154,16 @@ function toggleLeftDrawer() {
 
   & + & {
     margin-top: 18px;
+  }
+}
+
+.footer-menu {
+  margin: 0 32px 0 0;
+
+  a {
+    color: $primary;
+    font-weight: 500;
+    text-decoration: none;
   }
 }
 </style>
