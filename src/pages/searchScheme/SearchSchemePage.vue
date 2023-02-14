@@ -134,6 +134,9 @@ async function saveFormData() {
   // Clean form
   Object.assign(formData, DEFAULT_STATE);
   openDrawer.value = false;
+
+  await nextTick();
+  Prism.highlightAll();
 }
 
 /**
