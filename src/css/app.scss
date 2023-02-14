@@ -1,0 +1,42 @@
+@import './Inter.scss';
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
+
+
+body * {
+  font-family: 'Inter', sans-serif;
+}
+
+pre * {
+  font-family: 'Source Code Pro'!important;
+}
+
+.q-page-container {
+  // background-color: #d9d9d9;
+
+  >.q-page {
+    width: min(1280px, 90%);
+    margin: 0 auto;
+    padding: 16px;
+  }
+}
+
+.image-svg {
+  color: $primary!important;
+}
+
+.search-result-card {
+  &_item {
+    padding: 16px;
+    border-radius: 4px;
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, .2);
+
+    .field {
+      &-title {
+        margin-bottom: 4px;
+        color: $grey-7;
+      }
+    }
+  }
+}
+
+@import './components/_components';

@@ -1,1 +1,1 @@
-# web
+# LogTrail Web
