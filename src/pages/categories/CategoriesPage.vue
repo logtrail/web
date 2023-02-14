@@ -10,7 +10,7 @@
     <!-- HEADER PAGE -->
     <HeaderPage
       :addCategory="addCategory"
-      :categoryData="categoryData"  />
+      :categoryData="categoryData" />
 
     <div class="row full-width full-height">
       <!-- SEARCH RESULT -->
@@ -22,10 +22,13 @@
         :removeCategory="removeCategory"
         :categoryData="categoryData" />
 
+        <template v-else-if="loadingCategoryData">
+          <LoadCard />
+        </template>
+
       <!-- NO DATA -->
       <template v-else>
-        <NoData
-          :addCategory="addCategory" />
+        <NoData :addCategory="addCategory" />
       </template>
     </div>
   </q-page>
@@ -57,6 +60,7 @@ import { useQuasar } from 'quasar';
 
 import { services } from 'src/services';
 
+import LoadCard from 'components/general/card/loadCard/LoadCard.vue';
 import NoData from './components/NoData.vue';
 import HeaderPage from './components/Header.vue';
 import SearchResult from './components/SearchResult.vue';
@@ -78,6 +82,7 @@ const pagination = ref({
   perPage: 10,
   total: 1,
 });
+const loadingCategoryData = ref<boolean>(false);
 
 onMounted(async () => {
   await getCategories();
@@ -97,6 +102,7 @@ async function switchPage(page: number) {
  * @param currentPage: number - Current page
  */
 async function getCategories() {
+  loadingCategoryData.value = true;
   const {
     items: categories,
     pagination: paginationIfo,
@@ -107,6 +113,7 @@ async function getCategories() {
 
   await nextTick();
   Prism.highlightAll();
+  loadingCategoryData.value = false;
 }
 
 /**

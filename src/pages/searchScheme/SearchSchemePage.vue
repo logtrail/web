@@ -23,6 +23,10 @@
           :searchSchemesData="searchSchemesData" />
       </template>
 
+      <template v-else-if="loadingSchemesData">
+        <LoadCard />
+      </template>
+
       <!-- NO DATA -->
       <template v-else>
         <NoData :addSearchScheme="addSearchScheme" />
@@ -56,6 +60,7 @@ import {
 import { useQuasar } from 'quasar';
 import { services } from 'src/services';
 
+import LoadCard from 'components/general/card/loadCard/LoadCard.vue';
 import NoData from './components/NoData.vue';
 import HeaderPage from './components/Header.vue';
 import SearchResult from './components/SearchResult.vue';
@@ -78,6 +83,7 @@ const pagination = ref({
   perPage: 10,
   total: 1,
 });
+const loadingSchemesData = ref<boolean>(false);
 
 onMounted(async () => {
   await getSearchSchemes();
@@ -97,6 +103,7 @@ async function switchPage(page: number) {
  * @param currentPage: number - Current page
  */
 async function getSearchSchemes() {
+  loadingSchemesData.value = true;
   const {
     items: searchSchemes,
     pagination: paginationIfo,
@@ -107,6 +114,7 @@ async function getSearchSchemes() {
 
   await nextTick();
   Prism.highlightAll();
+  loadingSchemesData.value = false;
 }
 
 /**

@@ -31,6 +31,10 @@
       :nextPage="nextPage"
       :previousPage="previousPage" />
 
+    <template v-else-if="loadingLogsData">
+      <LoadCard />
+    </template>
+
     <!-- NO LOGS -->
     <template v-else>
       <NoData/>
@@ -63,6 +67,7 @@ import { services } from 'src/services';
 import { getValuesByMultiSelect, mongoIdToTimeStamp } from 'src/shared/helpers';
 
 import NoData from 'components/general/banner/NoData.vue';
+import LoadCard from 'components/general/card/loadCard/LoadCard.vue';
 import StaticFilters from './components/StaticFilters.vue';
 import AdvancedFilters from './components/AdvancedFilters.vue';
 import Actions from './components/Actions.vue';
@@ -85,6 +90,8 @@ const $q = useQuasar();
 const levels = ref([]);
 const logsData = ref<LogData[]>([]);
 const advancedFilters = ref([]);
+
+const loadingLogsData = ref<boolean>(false);
 
 const categories = ref([]);
 
@@ -132,6 +139,7 @@ async function clickToGetLogs() {
 async function getLogs(
   cursorData: { nextCursor?: string, previousCursor?: string } = {},
 ) {
+  loadingLogsData.value = true;
   const { nextCursor = '', previousCursor = '' } = cursorData;
   const payload: any = {
     limit: LIMIT_PER_PAGE,
@@ -162,6 +170,8 @@ async function getLogs(
     await nextTick();
     Prism.highlightAll();
   }
+
+  loadingLogsData.value = false;
 }
 
 /**

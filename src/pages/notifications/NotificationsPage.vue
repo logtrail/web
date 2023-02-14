@@ -23,6 +23,10 @@
           :notificationsData="notificationsData"/>
       </template>
 
+      <template v-else-if="loadingNotificationData">
+        <LoadCard />
+      </template>
+
       <!-- NO DATA -->
       <template v-else>
         <NoData
@@ -58,6 +62,7 @@ import { isEmpty } from 'lodash';
 import { useQuasar } from 'quasar';
 import { services } from 'src/services';
 
+import LoadCard from 'components/general/card/loadCard/LoadCard.vue';
 import NoData from './components/NoData.vue';
 import HeaderPage from './components/Header.vue';
 import SearchResult from './components/SearchResult.vue';
@@ -80,6 +85,7 @@ const pagination = ref({
   perPage: 10,
   total: 1,
 });
+const loadingNotificationData = ref<boolean>(false);
 
 onMounted(async () => {
   await getNotifications();
@@ -99,6 +105,7 @@ async function switchPage(page: number) {
  * @param currentPage: number - Current page
  */
 async function getNotifications() {
+  loadingNotificationData.value = true;
   const {
     items: notifications,
     pagination: paginationIfo,
@@ -111,6 +118,7 @@ async function getNotifications() {
     await nextTick();
     Prism.highlightAll();
   }
+  loadingNotificationData.value = false;
 }
 
 /**
