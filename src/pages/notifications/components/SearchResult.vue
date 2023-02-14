@@ -70,7 +70,7 @@
             unelevated
             class="q-mr-xs"
             color="blue"
-            @click="editNotification(currentNotification._id)">
+            @click.stop="editNotification(currentNotification._id)">
             <q-icon
               name="edit"
               color="white"
@@ -83,7 +83,7 @@
             unelevated
             class="q-ml-xs"
             color="red-5"
-            @click="removeNotification(currentNotification._id)">
+            @click.stop="removeNotification(currentNotification._id)">
             <q-icon
               name="delete"
               color="white"

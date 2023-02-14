@@ -6,6 +6,7 @@
       ref="refNotificationForm">
 
       <div
+        v-if="mode === 'edit'"
         class="row col-12 q-mb-md q-px-none">
         <q-checkbox
           v-model="formData.enable"
@@ -108,6 +109,10 @@ const props = defineProps({
   formData: {
     type: Object,
     default: () => reactive({}),
+  },
+
+  mode: {
+    type: String,
   },
 });
 

@@ -7,7 +7,7 @@
     :model-value="props.openDrawer"
     :width="500">
     <q-scroll-area class="fit">
-      <div class="row col-12 justify-between items-center q-mb-xl">
+      <div class="row col-12 justify-between items-center q-mb-xl q-px-md">
         <span class="text-h6 col-grow">{{ notificationTitle }}</span>
         <div class="col-shrink">
           <q-btn
@@ -24,7 +24,8 @@
 
       <NotificationForm
         v-model:formData="formData"
-        :saveFormData="props.saveFormData"/>
+        :mode="props.drawerMode"
+        :saveFormData="props.saveFormData" />
     </q-scroll-area>
   </q-drawer>
 </template>

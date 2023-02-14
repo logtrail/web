@@ -28,6 +28,7 @@ export default {
 const props = defineProps({
   notificationData: {
     type: Array,
+    default: () => [],
   },
   addNotification: {
     type: Function,
